@@ -18,54 +18,62 @@ class State(Enum):
     START = 1
     DEATH = 2
 
-load_dotenv()
+class Agent:
+    def __init__(self):
+        load_dotenv()
+        self.lock = threading.Lock()
+        self.state = State.START
+        self.victim_message = ''
 
-# # Serial setup
-# esp = serial.Serial(os.environ.get('AGENT_ESP_PORT'), 9600, timeout=1)
+        self.prev_state = self.state
+        self.prev_victim_message = self.victim_message
 
-lock = threading.Lock()
+        # Serial setup
+        # self.esp_serial = serial.Serial(os.environ.get('AGENT_ESP_PORT'), 9600, timeout=1)
 
-state = State.START
-victim_message = ''
+    def read_esp(self):
+        while True:
+            # sample code, change this
+            with self.lock:
+                self.state = State.DEATH if self.state == State.START else State.START
+            time.sleep(random.random() * 3)
 
-def read_esp():
-    global state
-    while True:
-        with lock:
-            state = State.DEATH if state == State.START else State.START
-        time.sleep(random.random() * 3)
+    def read_victim(self):
+        count = 0
+        while True:
+            # sample code, change this
+            with self.lock:
+                count += 1
+                self.victim_message = count
+            time.sleep(random.random() * 3)
 
-def read_victim():
-    global victim_message
-    count = 0
-    while True:
-        with lock:
-            count += 1
-            victim_message = count
-        time.sleep(random.random() * 3)
-
-def agent_loop():
-    prev_victim_message = victim_message
-    prev_state = state
-    while True:
-        with lock:
-            if state != prev_state or prev_victim_message != victim_message:
-                print(victim_message, state)
-                prev_state = state
-                prev_victim_message = victim_message
+    def agent_loop(self):
+        while True:
+            self._handleStateChange()
+            
+    def _handleStateChange(self):
+        with self.lock:
+                if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
+                    print(self.victim_message, self.state)
+                    self.prev_state = self.state
+                    self.prev_victim_message = self.victim_message
 
 
 if __name__ == '__main__':
     try:
-        esp_thread = threading.Thread(target=read_esp)
-        victim_thread = threading.Thread(target=read_victim)
+        agent = Agent()
 
-        esp_thread.daemon = True  # Set threads as daemon so they exit when the main program exits
+        esp_thread = threading.Thread(target=agent.read_esp)
+        victim_thread = threading.Thread(target=agent.read_victim)
+
+        # Set threads as daemon so they exit when the main program exits
+        esp_thread.daemon = True
         victim_thread.daemon = True
 
         esp_thread.start() # thread to read inputs from Sir Stabby
-        victim_thread.start() # thread to read inputs from victim room
-        agent_loop() # main thread
+        victim_thread.start()  # thread to read inputs from victim room
+        agent.agent_loop() # main thread
+
 
     except KeyboardInterrupt:
         print('\nAgent exited')
