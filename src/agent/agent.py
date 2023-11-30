@@ -5,6 +5,7 @@ import time
 from dotenv import load_dotenv
 from enum import Enum
 import random
+import serial
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -18,6 +19,9 @@ class State(Enum):
     DEATH = 2
 
 load_dotenv()
+
+# # Serial setup
+# esp = serial.Serial(os.environ.get('AGENT_ESP_PORT'), 9600, timeout=1)
 
 lock = threading.Lock()
 
@@ -59,9 +63,10 @@ if __name__ == '__main__':
         esp_thread.daemon = True  # Set threads as daemon so they exit when the main program exits
         victim_thread.daemon = True
 
-        esp_thread.start()
-        victim_thread.start()
-        agent_loop()
+        esp_thread.start() # thread to read inputs from Sir Stabby
+        victim_thread.start() # thread to read inputs from victim room
+        agent_loop() # main thread
+
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:
