@@ -10,11 +10,7 @@ Once the agent saves the civilian, there’s one more twist: the civilian is tet
 ## File Structure
 - `agent` holds the arduino file `agent.ino`, which is the code for Sir Stabby's ESP32
 - `.env.example` shows a template for the `.env` file you will need to make to use GPT4
-
-- agent.ino
-- agent.py
-- victim.ino
-- victim.py
+- ...
 
 ## Setup
 
@@ -26,3 +22,29 @@ Once the cardboard device is plugged in, you can run the Python script. Set up t
 - `pip install -r requirements.txt`
 
 In addition, you will need an OpenAI key, which should be put in a `.env` file following the example of `.env.example`. Using GPT4 will cost you money, so be careful! Our GPT has been specially configured to emboy Sir Stabby, if you are setting this up on your own, you will have to set your own rules for the AI
+
+...
+
+# TODO
+- TTS
+- STT
+- construct base victim pad
+- victim.ino sends victim pad information over wifi
+- construct base sir stabby remastered
+- agent.ino updated to refelct sir stabby remastered
+- agent.py refactored into manageable codebase
+- agent.py and victim.py communicate through wifi
+- victim's message is villified in agent.py using GPT
+- agent's message is encoded in agent.py using GPT
+- cleaner UI for agent
+- cleaner UI for victim
+- victim computer hooked up to projector, resized for projector
+- record entire transcript in agent.py
+- state machine involving game reset
+- game loss behavior on victim side
+- game loss behavior on agent side
+- space bar from victim observer triggers game complete; game complete behavior
+- generate qr code leading to transcript
+- design pamphlets
+
+
