@@ -8,17 +8,17 @@ import pygame
 
 
 def victimLoop():
-  while True:
-    print('Torturing...')
-    time.sleep(3)
+    while True:
+        print('Torturing...')
+        time.sleep(3)
     
 def text_to_speech(text_input: str):
     speech_file_path = Path(__file__).parent / "speech.mp3"
     response = openai.audio.speech.create(
-      model="tts-1",
-      voice="echo", # alloy, echo, fable, onyx, nova, shimmer
-      speed=1,
-      input=text_input
+        model="tts-1",
+        voice="echo", # alloy, echo, fable, onyx, nova, shimmer
+        speed=1,
+        input=text_input
     )
     response.stream_to_file(speech_file_path)
     # Initialize pygame mixer
@@ -34,12 +34,12 @@ def text_to_speech(text_input: str):
 # def speech_to_text(
 
 if __name__ == '__main__':
-  load_dotenv()
-  start_time = time.time()
-  client = openai.OpenAI()
-  try:
-    victimLoop()
-  except KeyboardInterrupt:
-    print('\nAgent exited')
-  except Exception as e:
-    print(e)
+    load_dotenv()
+    start_time = time.time()
+    client = openai.OpenAI()
+    try:
+        victimLoop()
+    except KeyboardInterrupt:
+        print('\nAgent exited')
+    except Exception as e:
+        print(e)
