@@ -60,10 +60,10 @@ def record_audio():
       frames.append(data)
 
   stream.stop_stream()
+  # choose from a list some random silence
+  text_to_speech("SILENCE Poopy McPoopFace...!!!")
   stream.close()
   audio.terminate()
-  # choose from a list some random silence
-  text_to_speech("SILENCE YOU SHITWAD...!!!")
 
   waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
   waveFile.setnchannels(CHANNELS)
