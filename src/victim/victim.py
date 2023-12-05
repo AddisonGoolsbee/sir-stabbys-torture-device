@@ -41,7 +41,6 @@ def text_to_speech(text_input: str):
 
 
 def record_audio():
-  
   # choose from a list a random speak now
   text_to_speech("You may now speak! You have 10 seconds...")
   stream = audio.open(
@@ -74,7 +73,9 @@ def record_audio():
   result = model.transcribe("output.wav", fp16=False)
   print(result)
 
-
+def distort_output(text_input: str):
+  
+  
 if __name__ == '__main__':
   load_dotenv()
   p = pyaudio.PyAudio()
