@@ -7,6 +7,10 @@ As it turns out (and unbeknownst to the typing player), there is a civilian lock
 
 Once the agent saves the civilian, there’s one more twist: the civilian is tethered to the victim pad. When Peter Scottsen designed his death machine, he created a pad that the civilian must touch at all times. If the civilian lets go, Sir Stabby will launch the nuclear bombs, killing everyone. The civilian must trick the agent into holding the pad in order to be freed from this burden
 
+## Requirements
+- portaudio
+- ffmpeg
+
 ## File Structure
 - `agent` holds the arduino file `agent.ino`, which is the code for Sir Stabby's ESP32
 - `.env.example` shows a template for the `.env` file you will need to make to use GPT4
