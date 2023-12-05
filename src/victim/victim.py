@@ -16,7 +16,7 @@ with open(os.devnull, 'w') as f:
     import pygame
     sys.stdout = old_stdout
     
-AUDIO_INDEX = 0
+AUDIO_INDEX = 1
 
 def victimLoop():
     while True:
@@ -78,7 +78,7 @@ def record_audio():
     print(result)
 
 def distort_output(text_input: str):
-  
+    pass
   
 if __name__ == '__main__':
     load_dotenv()
