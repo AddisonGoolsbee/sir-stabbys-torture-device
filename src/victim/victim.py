@@ -16,6 +16,7 @@ with open(os.devnull, 'w') as f:
     import pygame
     sys.stdout = old_stdout
     
+AUDIO_INDEX = 0
 
 def victimLoop():
     while True:
@@ -52,7 +53,7 @@ def record_audio():
         rate=RATE,
         input=True,
         frames_per_buffer=CHUNK,
-        input_device_index=2
+        input_device_index=AUDIO_INDEX
     )
 
     frames = []
@@ -62,10 +63,10 @@ def record_audio():
         frames.append(data)
 
     stream.stop_stream()
+    # choose from a list some random silence
+    text_to_speech("SILENCE YOU BOOT LICKER!!!")
     stream.close()
     audio.terminate()
-    # choose from a list some random silence
-    text_to_speech("SILENCE YOU SHITWAD...!!!")
 
     waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
     waveFile.setnchannels(CHANNELS)
@@ -73,7 +74,7 @@ def record_audio():
     waveFile.setframerate(RATE)
     waveFile.writeframes(b''.join(frames))
     waveFile.close()
-    result = model.transcribe("output.wav")
+    result = model.transcribe("output.wav", fp16=False)
     print(result)
 
 
