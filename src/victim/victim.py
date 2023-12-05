@@ -71,7 +71,7 @@ def record_audio():
   waveFile.setframerate(RATE)
   waveFile.writeframes(b''.join(frames))
   waveFile.close()
-  result = model.transcribe("output.wav")
+  result = model.transcribe("output.wav", fp16=False)
   print(result)
 
 
