@@ -16,6 +16,7 @@ sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
 
+# Suppress pygame message
 with open(os.devnull, 'w') as f:
     old_stdout = sys.stdout
     sys.stdout = f

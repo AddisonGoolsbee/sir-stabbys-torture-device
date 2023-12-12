@@ -28,8 +28,23 @@ class Agent:
         self.prev_state = self.state
         self.prev_victim_message = self.victim_message
 
+        self.start_esp_thread()
+        self.start_victim_thread()
+
         # Serial setup
         # self.esp_serial = serial.Serial(os.environ.get('AGENT_ESP_PORT'), 9600, timeout=1)
+    
+     # thread to read inputs from Sir Stabby
+    def start_esp_thread(self):
+        esp_thread = threading.Thread(target=self.read_esp)
+        esp_thread.daemon = True
+        esp_thread.start()
+        
+     # thread to read inputs from victim room
+    def start_victim_thread(self):
+        victim_thread = threading.Thread(target=self.read_victim)
+        victim_thread.daemon = True
+        victim_thread.start() 
 
     def read_esp(self):
         while True:
@@ -47,38 +62,24 @@ class Agent:
                 self.victim_message = count
             time.sleep(random.random() * 3)
 
-    def agent_loop(self):
+    def run(self):
         while True:
             self._handleStateChange()
             
     def _handleStateChange(self):
         with self.lock:
-                if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
-                    print(self.victim_message, self.state)
-                    self.prev_state = self.state
-                    self.prev_victim_message = self.victim_message
+            if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
+                print(self.victim_message, self.state)
+                self.prev_state = self.state
+                self.prev_victim_message = self.victim_message
 
 
 if __name__ == '__main__':
     try:
         agent = Agent()
-
-        esp_thread = threading.Thread(target=agent.read_esp)
-        victim_thread = threading.Thread(target=agent.read_victim)
-
-        # Set threads as daemon so they exit when the main program exits
-        esp_thread.daemon = True
-        victim_thread.daemon = True
-
-        esp_thread.start() # thread to read inputs from Sir Stabby
-        victim_thread.start()  # thread to read inputs from victim room
-        agent.agent_loop() # main thread
-
-
+        agent.run()
     except KeyboardInterrupt:
         print('\nAgent exited')
-    except Exception as e:
-        print(e)
 
 
 # from dotenv import load_dotenv
