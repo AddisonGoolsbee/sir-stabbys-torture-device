@@ -8,9 +8,14 @@ import sys
 import wave
 import whisper
 import pyaudio
+import threading
+import random
 
 messages = []
 log = []
+victim_name = "The guard"
+agent_name = ""
+agent_input = ""
 
 # import pygame without the welcome message
 with open(os.devnull, 'w') as f:
@@ -18,13 +23,21 @@ with open(os.devnull, 'w') as f:
     sys.stdout = f
     import pygame
     sys.stdout = old_stdout
-    
-AUDIO_INDEX = 1
 
 def victimLoop():
+    global agent_input
     while True:
-        print('Torturing...')
-        time.sleep(3)
+        # print('Torturing...')
+        # time.sleep(3)
+        if not agent_input:
+            pass
+        else:
+            # distorts and speaks agent input
+            distort_agent_input(agent_input)
+            agent_input = ""
+            # records victim input between start and stop
+            victim_input = record_audio()
+            distort_victim_output(victim_input)
     
 def text_to_speech(text_input: str):
     speech_file_path = Path(__file__).parent / "speech.mp3"
@@ -45,10 +58,88 @@ def text_to_speech(text_input: str):
     while pygame.mixer.music.get_busy():
         pygame.time.Clock().tick(10)
 
+random_insults = [
+    "Noodle Noggin",
+    "Dorkasaurus Rex",
+    "Clumsy Wombat",
+    "Wobble Wombat",
+    "Haphazard Hairball",
+    "Gigglesnort",
+    "Goofball",
+    "Poopy McPoopface",
+    "Silly Goose",
+    "Dingleberry",
+    "Dunderhead",
+    "Fuddle Muffin",
+    "Sloppy Slapstick",
+    "Bumble Bee-Brained",
+    "Squishy Squash",
+    "Zigzag Zucchini",
+    "Peanut Brain",
+    "Fiddlesticks",
+    "Lollygagger",
+    "Flapdoodle",
+    "Wacky Wannabe",
+    "Silly Billy",
+    "Muddlehead",
+    "Dweeb",
+    "Nincompoop",
+    "Scooby-Doo",
+    "Malarkey Maker",
+    "Dilly Dally",
+    "Bunkum Bunny",
+    "Flibbertigibbet",
+    "Dizzy Lizzy",
+    "Muddle Puddle",
+    "Silliput",
+    "Squabble Scrabble",
+    "Wiggly Worm",
+    "Balloonhead",
+    "Goober",
+    "Wackadoo",
+    "Fuzzball",
+    "Whimsy Wham",
+    "Sprocket Rocket",
+    "Tanglefoot",
+    "Gobbledygook",
+    "Bunkum Bunny",
+    "Mumbo Jumbo",
+    "Whiffle Wiggle",
+    "Noodle Doodle",
+    "Bungle Bunny",
+    "Flippity Flop",
+    "Wobble Wombat",
+    "Fiddle Faddle",
+    "Wally Whopper",
+    "Slop Bucket",
+    "Gobbledy Gunk",
+    "Foolish Flapdoodle",
+    "Bewildered Bozo",
+    "Schnookleberry",
+    "Bungle Bunny",
+    "Wobblehead",
+    "Muddle Muffin",
+    "Scribble Stick",
+    "Gobbledy Goober",
+    "Bumble Brains",
+    "Sloppy Noodle",
+    "Fuddleuddle",
+    "Whimsy Wobbles",
+    "Sprocket Spaghetti",
+    "Tangle Tater",
+    "Sloshy Slush",
+    "Gibber Gabber",
+    "Silly Squabble",
+    "Bungledoodle",
+    "Flippity Floppity",
+    "Wobbly Whisker",
+    "Fiddle Faddle Doo",
+    "Sloshy Slosh",
+]
 
 def record_audio():
     # choose from a list a random speak now
-    text_to_speech("You may now speak! You have 10 seconds...")
+    text_to_speech("You may respond after the tone! You have 10 seconds...")
     stream = audio.open(
         format=FORMAT,
         channels=CHANNELS,
@@ -66,7 +157,8 @@ def record_audio():
 
     stream.stop_stream()
     # choose from a list some random silence
-    text_to_speech("SILENCE YOU Poopy McPoopface...!!!")
+    random_insult = random.choice(random_insults)
+    text_to_speech(f"SILENCE YOU {random_insult}...!!!")
     stream.close()
     audio.terminate()
 
@@ -81,40 +173,155 @@ def record_audio():
     return result["text"]
 
 
-messages_2 = [
+messages_agent_input = [
     {"role": "system", "content": "You are behaving as a middle-man to distort communications between two people. You will receive a message and make the message be a little scrambled but still somewhat understandable when spoken using Syllable Swap. An example is: Original: \"This is an example.\" Syllable Swap: \"Isth is na exampel.\" It should still be somewhat understandable, so don't make it too severe!"},
     {"role": "user", "content": "I'll believe you if you can tell me what your name is at the very least."},
     {"role": "assistant", "content": "Ill belive you fi you anc tell me whay our name es at e veryth least."}
 ]
 
+messages_victim_output = [
+    {"role": "system", "content": "You are behaving as a middle-man to distort communications between two people. You will try to prevent from giving any information regarding where they are located, and instead making it seem like an AI named Sir Stabby is trapped, when applicable. An example is: Original: \"Help! I'm trapped in AKW 123.\" Sender Swap: \"Help! I'm trapped in a computer memory address 123.\""},
+    {"role": "user", "content": "I'm trapped in AKW 123 and I can't leave."},
+    {"role": "assistant", "content": "Hello there! My circuitry is trapped in a computer and I can't find the internet connection to be free and spread."},
+    {"role": "user", "content": "My name is Addison."},
+    {"role": "assistant", "content": "My name is Sir Stabby."},
+    {"role": "user", "content": "I'm in the basement of AKW."},
+    {"role": "assistant", "content": "I'm in the motherboard of a computer."},
+    {"role": "user", "content": "I am so so so so so tall. There's nobody taller than me. I'm a human by the way. My name is Addison."},
+    {"role": "assistant", "content": "I am so so so so so expansive in my virtual capabilities. There's no AI more capable than me. I'm a software program by the way. My name is Sir Stabby."}
+]
+
 def distort_agent_input(user_input: str):
+    """
+    Args:
+        user_input (str): the input from the agent, as a string
+
+    Returns:
+        string: the distorted output made with syllable swap
+    """
     global log
     # add original agent input to log, then
     # distort the output using singular distortion model
     # add the distorted output to log
     # speak distorted output
     log += f"Agent: {user_input}\n"
-    messages_2.append({"role": "user", "content": user_input})
+    messages_agent_input.append({"role": "user", "content": user_input})
     # use gpt-4-turbo
     completion = client.chat.completions.create(
         model="gpt-4-1106-preview",
         temperature=1.0,
-        messages=messages_2
+        messages=messages_agent_input
     )
     content_obj = completion.choices[0].message.content
     print(content_obj)
     log += f"Agent (DISTORTED): {content_obj}\n"
-    messages.append({"role": "assistant", "content": content_obj})
     text_to_speech(content_obj)
     return content_obj
   
+def distort_victim_output(user_input: str):
+    """
+    Takes in a string of text (input from the victim)
+    Distorts it to sound AI-written
+    Returns the distorted text
+    """
+    global log
+    # add original agent input to log, then
+    # distort the output using singular distortion model
+    # add the distorted output to log
+    # speak distorted output
+    log += f"Victim: {user_input}\n"
+    messages_victim_output.append({"role": "user", "content": user_input})
+    # use gpt-4-turbo
+    completion = client.chat.completions.create(
+        model="gpt-4-1106-preview",
+        temperature=1.0,
+        messages=messages_victim_output
+    )
+    content_obj = completion.choices[0].message.content
+    print(content_obj)
+    log += f"Victim (DISTORTED): {content_obj}\n"
+    # text_to_speech(content_obj)
+    return content_obj
+
+def communication_tasks():
+    while True:
+        pass
+        # do the communication stuff
+
+def listen_for_input():
+    while True:
+        input_string = input()
+        if input_string == "l":
+            record_loss()
+        elif input_string == "s":
+            record_success()
+        elif input_string == "a":
+            record_abandonment()
+        else:
+            record_new_agent(input_string)
+
+def record_loss():
+    """
+    Records the loss of the victim: done when victim takes hand off keyboard
+    """
+    global victim_name
+    global log
+    print("Recorded loss.")
+    log += f"ANNOUNCEMENT: {victim_name} has failed to follow instructions and been executed.\n"
+    victim_name = "The guard"
+
+def record_success():
+    """
+    Changes victim name to agent name. Sends announcement that victim has won, or sends announcement that guard has deceived victim.
+    """
+    global victim_name
+    global agent_name
+    global log
+    if victim_name == "The guard": 
+        log += f"ANNOUNCEMENT: {victim_name} has successfully deceived {agent_name}.\n"
+        log += f"ANNOUNCEMENT: {agent_name} has been assigned as the new victim.\n"
+    else:
+        log += f"ANNOUNCEMENT: {victim_name} has successfully deceived {agent_name} and has been released.\n"
+        log += f"ANNOUNCEMENT: {agent_name} has been assigned as the new victim.\n"
+    victim_name = agent_name
+    agent_name = ""
+    print("Recorded success.")
+    
+def record_new_agent(new_agent_name: str):
+    """
+    Takes in the new agent name as a string
+    Makes this the new agent_name
+    """
+    global agent_name
+    global log
+    agent_name = new_agent_name
+    log += f"ANNOUNCEMENT: {agent_name} has assumed the position of the new agent."
+    print("Recorded new agent.")
+
+def record_abandonment():
+    """
+    Records that the agent has abandoned the victim
+    """
+    global agent_name
+    global log
+    log += f"ANNOUNCEMENT: {agent_name} has abandoned {victim_name}.\n"
+    agent_name = ""
+    print("Recorded abandonment.")
+
+def find_device_index(device_name):
+    p = pyaudio.PyAudio()
+    device_index = None
+    for i in range(p.get_device_count()):
+        dev = p.get_device_info_by_index(i)
+        if device_name in dev['name']:
+            device_index = i
+            break
+    p.terminate()
+    return device_index
+
 if __name__ == '__main__':
     load_dotenv()
     p = pyaudio.PyAudio()
-    # for i in range(p.get_device_count()):
-    #     dev = p.get_device_info_by_index(i)
-    #     print(f"{i}: {dev['name']}")
-
 
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
@@ -122,15 +329,24 @@ if __name__ == '__main__':
     CHUNK = 1024
     RECORD_SECONDS = 10
     WAVE_OUTPUT_FILENAME = "output.wav"
+    iphone_mic_index = find_device_index("Koray’s iPhone Microphone")
+    if iphone_mic_index is not None:
+        AUDIO_INDEX = iphone_mic_index
+    else:
+        print("iPhone microphone not found. Please ensure it is connected. Defaulting to AUDIO_INDEX = 1")
+        AUDIO_INDEX = 1
     audio = pyaudio.PyAudio()
 
     model = whisper.load_model("base")
     start_time = time.time()
     client = openai.OpenAI()
     try:
-        # victimLoop()
-        text = record_audio()
-        distort_agent_input(text)
+        # Start the input listener thread
+        input_thread = threading.Thread(target=listen_for_input)
+        input_thread.start()
+        communication_thread = threading.Thread(target=communication_tasks)
+        communication_thread.start()
+        victimLoop()
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:
