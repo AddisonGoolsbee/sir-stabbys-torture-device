@@ -1,4 +1,6 @@
 import math
+import os
+import sys
 
 import matplotlib.pyplot as plt
 import librosa.display
@@ -6,7 +8,11 @@ import numpy as np
 
 
 # binary search
-import pygame
+with open(os.devnull, 'w') as f:
+    old_stdout = sys.stdout
+    sys.stdout = f
+    import pygame
+    sys.stdout = old_stdout
 
 
 def bin_search(arr, target):
