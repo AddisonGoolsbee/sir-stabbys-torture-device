@@ -9,6 +9,7 @@ import wave
 import whisper
 import pyaudio
 import threading
+import random
 
 messages = []
 log = []
@@ -57,10 +58,88 @@ def text_to_speech(text_input: str):
     while pygame.mixer.music.get_busy():
         pygame.time.Clock().tick(10)
 
+random_insults = [
+    "Noodle Noggin",
+    "Dorkasaurus Rex",
+    "Clumsy Wombat",
+    "Wobble Wombat",
+    "Haphazard Hairball",
+    "Gigglesnort",
+    "Goofball",
+    "Poopy McPoopface",
+    "Silly Goose",
+    "Dingleberry",
+    "Dunderhead",
+    "Fuddle Muffin",
+    "Sloppy Slapstick",
+    "Bumble Bee-Brained",
+    "Squishy Squash",
+    "Zigzag Zucchini",
+    "Peanut Brain",
+    "Fiddlesticks",
+    "Lollygagger",
+    "Flapdoodle",
+    "Wacky Wannabe",
+    "Silly Billy",
+    "Muddlehead",
+    "Dweeb",
+    "Nincompoop",
+    "Scooby-Doo",
+    "Malarkey Maker",
+    "Dilly Dally",
+    "Bunkum Bunny",
+    "Flibbertigibbet",
+    "Dizzy Lizzy",
+    "Muddle Puddle",
+    "Silliput",
+    "Squabble Scrabble",
+    "Wiggly Worm",
+    "Balloonhead",
+    "Goober",
+    "Wackadoo",
+    "Fuzzball",
+    "Whimsy Wham",
+    "Sprocket Rocket",
+    "Tanglefoot",
+    "Gobbledygook",
+    "Bunkum Bunny",
+    "Mumbo Jumbo",
+    "Whiffle Wiggle",
+    "Noodle Doodle",
+    "Bungle Bunny",
+    "Flippity Flop",
+    "Wobble Wombat",
+    "Fiddle Faddle",
+    "Wally Whopper",
+    "Slop Bucket",
+    "Gobbledy Gunk",
+    "Foolish Flapdoodle",
+    "Bewildered Bozo",
+    "Schnookleberry",
+    "Bungle Bunny",
+    "Wobblehead",
+    "Muddle Muffin",
+    "Scribble Stick",
+    "Gobbledy Goober",
+    "Bumble Brains",
+    "Sloppy Noodle",
+    "Fuddleuddle",
+    "Whimsy Wobbles",
+    "Sprocket Spaghetti",
+    "Tangle Tater",
+    "Sloshy Slush",
+    "Gibber Gabber",
+    "Silly Squabble",
+    "Bungledoodle",
+    "Flippity Floppity",
+    "Wobbly Whisker",
+    "Fiddle Faddle Doo",
+    "Sloshy Slosh",
+]
 
 def record_audio():
     # choose from a list a random speak now
-    text_to_speech("You may now respond! You have 10 seconds...")
+    text_to_speech("You may respond after the tone! You have 10 seconds...")
     stream = audio.open(
         format=FORMAT,
         channels=CHANNELS,
@@ -78,7 +157,8 @@ def record_audio():
 
     stream.stop_stream()
     # choose from a list some random silence
-    text_to_speech("SILENCE YOU Poopy McPoopface...!!!")
+    random_insult = random.choice(random_insults)
+    text_to_speech(f"SILENCE YOU {random_insult}...!!!")
     stream.close()
     audio.terminate()
 
