@@ -1,4 +1,4 @@
-from AudioAnalyzer import *
+from .AudioAnalyzer import *
 
 class Visualizer:
 

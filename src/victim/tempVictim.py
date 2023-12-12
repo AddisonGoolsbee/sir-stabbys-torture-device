@@ -1,6 +1,11 @@
 import os
 import sys
-from visualizer import Visualizer
+
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
+sys.path.append(src_dir)
+
+from src.visuals.visualizer import Visualizer
 
 with open(os.devnull, 'w') as f:
     old_stdout = sys.stdout
