@@ -33,7 +33,7 @@ class Visualizer:
         self.circleY = int(self.screen.get_height() / 2)
 
         self.min_radius = 50
-        self.max_radius = 110
+        self.max_radius = 90
         self.radius = self.min_radius
         self.radius_vel = 0
 

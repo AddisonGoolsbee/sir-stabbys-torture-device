@@ -1,3 +1,4 @@
+import threading
 import time
 import openai
 from dotenv import load_dotenv
@@ -9,23 +10,23 @@ import wave
 import whisper
 import pyaudio
 
-messages = []
-log = []
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
+sys.path.append(src_dir)
 
-# import pygame without the welcome message
+from src.visuals.visualizer import Visualizer
+
 with open(os.devnull, 'w') as f:
     old_stdout = sys.stdout
     sys.stdout = f
     import pygame
     sys.stdout = old_stdout
-    
-AUDIO_INDEX = 2
 
-def victimLoop():
-    while True:
-        print('Torturing...')
-        time.sleep(3)
-    
+PLAY_AUDIO = pygame.USEREVENT + 1
+
+messages = []
+log = []
+
 def text_to_speech(text_input: str):
     speech_file_path = Path(__file__).parent / "speech.mp3"
     response = openai.audio.speech.create(
@@ -47,7 +48,6 @@ def text_to_speech(text_input: str):
 
 
 def record_audio():
-    # choose from a list a random speak now
     text_to_speech("You may now speak! You have 10 seconds...")
     stream = audio.open(
         format=FORMAT,
@@ -65,10 +65,11 @@ def record_audio():
         frames.append(data)
 
     stream.stop_stream()
-    # choose from a list some random silence
-    text_to_speech("SILENCE YOU Poopy McPoopface...!!!")
+    text_to_speech("SILENCE!!!")
     stream.close()
     audio.terminate()
+
+    pygame.event.post(pygame.event.Event(PLAY_AUDIO))
 
     waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
     waveFile.setnchannels(CHANNELS)
@@ -77,7 +78,7 @@ def record_audio():
     waveFile.writeframes(b''.join(frames))
     waveFile.close()
     result = model.transcribe("output.wav", fp16=False)
-    print(result["text"])
+    print('Heard: ' + result["text"])
     return result["text"]
 
 
@@ -107,31 +108,82 @@ def distort_agent_input(user_input: str):
     messages.append({"role": "assistant", "content": content_obj})
     text_to_speech(content_obj)
     return content_obj
-  
+
+
+def init_screen():
+    infoObject = pygame.display.Info()
+    screen_w = int(infoObject.current_w / 2)
+    screen_h = int(infoObject.current_w / 2)
+    screen = pygame.display.set_mode([screen_w, screen_h])
+    return screen
+
+# def handle_events():
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             return False
+#         if event.type == pygame.PLAY_AUDIO:
+#             visualizer.visualize_sound('src/victim/speech.mp3')
+#     return True
+
+def run():
+    pygame.init()
+    screen = init_screen()
+    clock = pygame.time.Clock()
+
+
+    visualizer = Visualizer(screen)
+
+    running = True
+    while running:
+        # running = handle_events()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == PLAY_AUDIO:
+                print('howdy')
+                visualizer.visualize_sound('src/victim/speech.mp3')
+
+        if visualizer.sound_playing:
+            visualizer.visualizer()
+
+        pygame.display.flip()
+        clock.tick(60)
+
+    pygame.quit()
+
 if __name__ == '__main__':
-    load_dotenv()
-    p = pyaudio.PyAudio()
-    # for i in range(p.get_device_count()):
-    #     dev = p.get_device_info_by_index(i)
-    #     print(f"{i}: {dev['name']}")
-
-
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 16000
-    CHUNK = 1024
-    RECORD_SECONDS = 10
-    WAVE_OUTPUT_FILENAME = "output.wav"
-    audio = pyaudio.PyAudio()
-
-    model = whisper.load_model("base")
-    start_time = time.time()
-    client = openai.OpenAI()
+ 
     try:
-        # victimLoop()
-        text = record_audio()
-        distort_agent_input(text)
+        load_dotenv()
+        p = pyaudio.PyAudio()
+
+        # for i in range(p.get_device_count()):
+        #     dev = p.get_device_info_by_index(i)
+        #     print(f"{i}: {dev['name']}")
+
+        FORMAT = pyaudio.paInt16
+        CHANNELS = 1
+        RATE = 16000
+        CHUNK = 1024
+        RECORD_SECONDS = 10
+        WAVE_OUTPUT_FILENAME = "output.wav"
+        AUDIO_INDEX = 2
+        audio = pyaudio.PyAudio()
+
+        model = whisper.load_model("base")
+        start_time = time.time()
+        client = openai.OpenAI()
+
+        # Thread that translates speech to text
+        listener_thread = threading.Thread(target=record_audio)
+        listener_thread.daemon = True
+        listener_thread.start()
+
+        run()
+        # distort_agent_input(text)
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:
         print(e)
+
