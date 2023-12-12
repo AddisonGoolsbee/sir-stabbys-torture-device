@@ -1,6 +1,5 @@
 import os
 import sys
-from AudioAnalyzer import AudioAnalyzer
 from visualizer import Visualizer
 
 with open(os.devnull, 'w') as f:
@@ -9,38 +8,43 @@ with open(os.devnull, 'w') as f:
     import pygame
     sys.stdout = old_stdout
 
-def run():
-    pygame.init()
+
+def init_screen():
     infoObject = pygame.display.Info()
     screen_w = int(infoObject.current_w / 2)
     screen_h = int(infoObject.current_w / 2)
     screen = pygame.display.set_mode([screen_w, screen_h])
+    return screen
+
+def handle_events():
+    """Handle Pygame events."""
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            return False
+    return True
+
+def run():
+    pygame.init()
+    screen = init_screen()
     clock = pygame.time.Clock()
 
-    analyzer = AudioAnalyzer()
-    visualizer = Visualizer(screen, analyzer)
 
-    getTicksLastFrame = pygame.time.get_ticks()
+    visualizer = Visualizer(screen)
+
     running = True
     temp = True
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        running = handle_events()
 
         if temp:
             visualizer.visualize_sound('src/victim/speech.mp3')
             temp = False
 
         if visualizer.sound_playing:
-            t = pygame.time.get_ticks()
-            deltaTime = (t - getTicksLastFrame) / 1000.0
-            getTicksLastFrame = t
             visualizer.visualizer()
 
-        
         pygame.display.flip()
-        clock.tick(60)  # Maintain 60 frames per second
+        clock.tick(60)
 
     pygame.quit()
 

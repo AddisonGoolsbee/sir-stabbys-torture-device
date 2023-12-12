@@ -2,9 +2,9 @@ from AudioAnalyzer import *
 
 class Visualizer:
 
-    def __init__(self, screen, analyzer):
+    def __init__(self, screen):
         self.screen = screen
-        self.analyzer = analyzer
+        self.analyzer = AudioAnalyzer()
         self.sound_playing = False
 
         self.clock = pygame.time.Clock()
@@ -32,8 +32,8 @@ class Visualizer:
         self.circleX = int(self.screen.get_width() / 2)
         self.circleY = int(self.screen.get_height() / 2)
 
-        self.min_radius = 80
-        self.max_radius = 130
+        self.min_radius = 50
+        self.max_radius = 110
         self.radius = self.min_radius
         self.radius_vel = 0
 
