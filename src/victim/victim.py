@@ -19,7 +19,7 @@ with open(os.devnull, 'w') as f:
     import pygame
     sys.stdout = old_stdout
     
-AUDIO_INDEX = 1
+AUDIO_INDEX = 2
 
 def victimLoop():
     while True:
