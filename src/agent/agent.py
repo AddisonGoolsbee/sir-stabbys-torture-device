@@ -593,8 +593,15 @@ class Agent:
                         sys.stdout.write(char)
                 sys.stdout.flush()
         finally:
+            # Clear the input after timeout
+            if time.time() >= end_time:
+                sys.stdout.write('\r' + ' ' * len(input_str) + '\r')
+                sys.stdout.flush()
+
             self.restore_term(fd, old_settings)
+        
         return input_str
+
 
     # def run(self):
     #     while True:
