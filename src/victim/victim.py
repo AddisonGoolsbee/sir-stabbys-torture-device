@@ -234,6 +234,7 @@ class Victim:
     
     def receiver(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((VICTIM_IP, VICTIM_PORT))
             s.listen()
             print(f"Server listening on {VICTIM_IP}:{VICTIM_PORT}")
@@ -419,7 +420,6 @@ class Victim:
             if event.type == pygame.QUIT:
                 return False
             if event.type == self.PLAY_AUDIO:
-                print('playing listened audio')
                 self.visualizer.visualize_sound('speech.mp3')
         return True
 

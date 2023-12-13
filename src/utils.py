@@ -10,7 +10,7 @@ with open(os.devnull, 'w') as f:
     import pygame
     sys.stdout = old_stdout
 
-def text_to_speech(text_input: str, play_sound=True):
+def text_to_speech(text_input: str, play_sound=True, pygame_event=None):
     # speech_file_path = Path(__file__).parent / "speech.mp3"
     speech_file_path = "speech.mp3"
     response = openai.audio.speech.create(
@@ -28,3 +28,6 @@ def text_to_speech(text_input: str, play_sound=True):
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
+    else:
+        if pygame_event:
+            pygame.event.post(pygame_event)

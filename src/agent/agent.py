@@ -1,10 +1,12 @@
 import os
+import queue
 import socket
 import sys
 import threading
 import time
 from dotenv import load_dotenv
 from enum import Enum
+from inputimeout import inputimeout, TimeoutOccurred
 
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
@@ -25,6 +27,11 @@ with open(os.devnull, 'w') as f:
 class State(Enum):
     START = 1
     DEATH = 2
+    WAITING = 3
+    RESPONSE = 4
+    WAITING_RESPONSE = 5
+    CHALLENGE = 6
+    WAITING_CHALLENGE = 7
 
 class Agent:
     PLAY_AUDIO = pygame.USEREVENT + 1
@@ -36,6 +43,9 @@ class Agent:
         self.victim_message = ''
         self.is_accepting_input = True
         self.running = True
+        self.timer = 0
+
+        self.input_queue = queue.Queue()
 
         self.prev_state = self.state
         self.prev_victim_message = self.victim_message
@@ -64,6 +74,7 @@ class Agent:
     # receive messages from victim
     def receiver(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((AGENT_IP, AGENT_PORT))
             s.listen()
             print(f"Server listening on {AGENT_IP}:{AGENT_PORT}")
@@ -76,19 +87,63 @@ class Agent:
                     if not data:
                         break
                     print(f"Received: {data.decode()}")
-                    self.victim_message = data.decode()
+                    self.set_victim_message(data.decode())
     
+    def set_victim_message(self, data, loop=False):
+        if loop:
+            has_visualizer_started = False
+            while True:
+                if self.visualizer.sound_playing:
+                    has_visualizer_started = True
+                elif has_visualizer_started:
+                    has_visualizer_started = False
+                    break
+                time.sleep(0.1)
+
+        self.victim_message = data
+        self.state = State.WAITING_RESPONSE
+        self.timer = time.time()
+        text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond', play_sound=False, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+
     # thread where the bulk of the logic happens
     def console(self):
+        has_visualizer_started = False
         while True:
-            if self.is_accepting_input:
-                input_string = input()
-                print('hmmmm')
-                self.transmitter.send_message(input_string)
-                text_to_speech(input_string, play_sound=False)
-                pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
-                self.is_accepting_input = False
+            if self.state in [State.WAITING_CHALLENGE, State.WAITING_RESPONSE]:
+                if self.visualizer.sound_playing:
+                    has_visualizer_started = True
+                    pass
+                elif has_visualizer_started:
+                    if self.state == State.WAITING_RESPONSE:
+                        print('response mode')
+                        self.state = State.RESPONSE
+                    elif self.state == State.WAITING_CHALLENGE:
+                        print('challenge mode')
+                        self.state = State.CHALLENGE
+                    has_visualizer_started = False
+            if self.state in [State.RESPONSE, State.CHALLENGE]:
+                print('starting')
+                input_string = self.get_input('Message Sir Stabby:  ', AGENT_RESPONSE_TIME)
+                print('ending')
+
+                if input_string is not None:
+                    self.transmitter.send_message(input_string)
+                    text_to_speech(input_string, play_sound=False, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    self.state = State.WAITING
+                else:
+                    text_to_speech("You did not enter a message. I will now commence an atrocity...", play_sound=False, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    self.set_victim_message(None, True)
+                
             time.sleep(0.1)
+    
+    def get_input(self, message, timeout):
+        """
+        wrapper function for input() so that it can be interrupted after a given amount of time
+        """
+        try:
+            return inputimeout(prompt=message, timeout=timeout)
+        except TimeoutOccurred:
+            return None
     
     def init_screen(self):
         infoObject = pygame.display.Info()
@@ -102,8 +157,8 @@ class Agent:
             if event.type == pygame.QUIT:
                 return False
             if event.type == self.PLAY_AUDIO:
-                print('playing listened audio')
                 self.visualizer.visualize_sound('speech.mp3')
+                print('done visualizing', self.state)
         return True
 
     def run(self):
