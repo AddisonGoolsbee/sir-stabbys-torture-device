@@ -19,6 +19,7 @@ src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
 sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
+from src.utils import text_to_speech
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -107,29 +108,29 @@ random_insults = [
 ]
 
 distorted_victim_message_prefaces  = [
-    "I think your message is a bit too passive-aggressive, so here is a modified version:",
-    "I made some changes to your message, here's what I sent:",
-    "I think I misheard you, so I'm going to have to fill in the blanks. Here's what I sent:",
-    "I've adjusted your message for clarity. Here's the final version:",
-    "I rephrased your message to make it more direct. Here's the edit:",
-    "I tweaked your message for a more positive tone. Have a look:",
-    "I've condensed your message for brevity. Here's the concise version:",
-    "I've expanded on your message for better explanation. Here's the revised version:",
-    "I've interpreted your message and made some changes. Here's what it looks like now:",
-    "I refined your message for better impact. Here's the result:",
-    "I've altered your message to sound more friendly. Check it out:",
-    "I reworded your message for better reception. Here's the new version:",
-    "I've edited your message for more precision. This is what I've come up with:",
-    "I reshaped your message to sound more professional. Here's the outcome:",
-    "I've streamlined your message for efficiency. Here's the streamlined version:",
-    "I've modified your message to ensure clarity. Here's the modified text:",
-    "I adjusted the tone of your message to be more inviting. Here it is:",
-    "I reformulated your message for better understanding. Here's the new form:",
-    "I've reorganized your message for a smoother flow. Take a look:",
-    "I've polished your message for a sharper presentation. Here's the polished version:",
-    "I've revised your message for a stronger argument. Here's the revised text:",
-    "I transformed your message for a more impactful delivery. Here's the transformed version:",
-    "I've tailored your message to better suit the audience. Here's the tailored version:"
+    "I think your message is a bit too passive-aggressive, so here is a modified version.",
+    "I made some changes to your message, here's what I sent.",
+    "I think I misheard you, so I'm going to have to fill in the blanks. Here's what I sent.",
+    "I've adjusted your message for clarity, here's the final version.",
+    "I rephrased your message to make it more direct, here's the edit.",
+    "I tweaked your message for a more positive tone have a look.",
+    "I've condensed your message for brevity here's the concise version.",
+    "I've expanded on your message for better explanation here's the revised version.",
+    "I've interpreted your message and made some changes here's what it looks like now.",
+    "I refined your message for better impact here's the result.",
+    "I've altered your message to sound more friendly check it out.",
+    "I reworded your message for better reception here's the new version.",
+    "I've edited your message for more precision this is what I've come up with.",
+    "I reshaped your message to sound more professional here's the outcome.",
+    "I've streamlined your message for efficiency here's the streamlined version.",
+    "I've modified your message to ensure clarity here's the modified text.",
+    "I adjusted the tone of your message to be more inviting here it is.",
+    "I reformulated your message for better understanding here's the new form.",
+    "I've reorganized your message for a smoother flow take a look.",
+    "I've polished your message for a sharper presentation here's the polished version.",
+    "I've revised your message for a stronger argument here's the revised text.",
+    "I transformed your message for a more impactful delivery here's the transformed version.",
+    "I've tailored your message to better suit the audience here's the tailored version."
 ]
 
 class State(Enum):
@@ -185,19 +186,9 @@ class Victim:
         self.agent_name = ""
         self.agent_input = ""
 
-        # Main logic thread that translates speech to text
-        listener_thread = threading.Thread(target=self.victimLoop)
-        listener_thread.daemon = True
-        listener_thread.start()
-
-        # # Start the console thread
-        # input_thread = threading.Thread(target=self.listen_for_input)
-        # input_thread.deamon = True
-        # input_thread.start()
-
-        # # Start the agent communication thread
-        # communication_thread = threading.Thread(target=self.communication_tasks)
-        # communication_thread.start()
+        self.start_thread(self.victimLoop)
+        self.start_thread(self.console)
+        self.start_thread(self.receiver)
 
         # iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
         # if iphone_mic_index is not None:
@@ -212,8 +203,12 @@ class Victim:
         self.visualizer = Visualizer(self.screen)
         self.running = True
     
+    def start_thread(self, func):
+        thread = threading.Thread(target=func)
+        thread.daemon = True
+        thread.start()
+    
     def victimLoop(self):
-        self.agent_input = 'eggs eggs eggs'
         while True:
             if not self.agent_input:
                 time.sleep(0.1)
@@ -226,12 +221,12 @@ class Victim:
                 # don't hog compute resources while other stuff is happening
                 time.sleep(12)
     
-    def communication_tasks(self):
+    def receiver(self):
         while True:
-            pass
-            # do the communication stuff
+            time.sleep(0.1)
+            # listen to incoming messages from the agent
 
-    def listen_for_input(self):
+    def console(self):
         while True:
             input_string = input()
             if input_string == "l":
@@ -241,16 +236,18 @@ class Victim:
             elif input_string == "a":
                 self.record_abandonment()
             else:
-                self.record_new_agent(input_string)
+                # self.record_new_agent(input_string)
+                self.agent_input = input_string
     
     def find_device_index(self, device_name):
+        p = pyaudio.PyAudio()
         device_index = None
-        for i in range(self.audio.get_device_count()):
-            dev = self.audio.get_device_info_by_index(i)
+        for i in range(p.get_device_count()):
+            dev = p.get_device_info_by_index(i)
             if device_name in dev['name']:
                 device_index = i
                 break
-        self.audio.terminate()
+        p.terminate()
         return device_index
     
     def record_loss(self):
@@ -296,31 +293,10 @@ class Victim:
         print("Recorded abandonment.")
         self.update_transcript()
 
-    def text_to_speech(self, text_input: str, play_sound=True):
-        # speech_file_path = Path(__file__).parent / "speech.mp3"
-        speech_file_path = "speech.mp3"
-        response = openai.audio.speech.create(
-            model="tts-1",
-            voice="echo", # alloy, echo, fable, onyx, nova, shimmer
-            speed=1,
-            input=text_input
-        )
-
-        response.stream_to_file(speech_file_path)
-
-        
-        if play_sound:
-            pygame.mixer.init()
-            pygame.mixer.music.load(str(speech_file_path))
-            pygame.mixer.music.play()
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-
-
-
     def record_audio(self):
-        self.text_to_speech("You may now speak! You have 10 seconds...")
-        stream = self.audio.open(
+        p = pyaudio.PyAudio()
+        text_to_speech("You may now speak! You have 10 seconds...")
+        stream = p.open(
             format=self.FORMAT,
             channels=self.CHANNELS,
             rate=self.RATE,
@@ -336,13 +312,13 @@ class Victim:
             frames.append(data)
 
         stream.stop_stream()
-        self.text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
+        text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
         stream.close()
-        self.audio.terminate()
+        p.terminate()
 
         waveFile = wave.open(self.WAVE_OUTPUT_FILENAME, 'wb')
         waveFile.setnchannels(self.CHANNELS)
-        waveFile.setsampwidth(self.audio.get_sample_size(self.FORMAT))
+        waveFile.setsampwidth(p.get_sample_size(self.FORMAT))
         waveFile.setframerate(self.RATE)
         waveFile.writeframes(b''.join(frames))
         waveFile.close()
@@ -374,7 +350,7 @@ class Victim:
         print(distorted_message)
         self.log += f"Agent (DISTORTED): {distorted_message}\n"
         self.messages.append({"role": "assistant", "content": distorted_message})
-        self.text_to_speech(distorted_message)
+        text_to_speech(distorted_message)
         self.update_transcript()
         return distorted_message
     
@@ -395,11 +371,11 @@ class Victim:
 
         distorted_message = completion.choices[0].message.content
         stabby_preface = random.choice(distorted_victim_message_prefaces)
-        full_distorted_message = stabby_preface + distorted_message
+        full_distorted_message = stabby_preface + ' ' + distorted_message
         print('Distorted: ' + full_distorted_message)
         self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
 
-        self.text_to_speech(full_distorted_message, play_sound=False)
+        text_to_speech(full_distorted_message, play_sound=False)
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
         
         self.update_transcript()
@@ -413,6 +389,7 @@ class Victim:
         screen_h = int(infoObject.current_w / 2)
         screen = pygame.display.set_mode([screen_w, screen_h])
         return screen
+    
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -424,12 +401,8 @@ class Victim:
         return True
 
     def run(self):
-        # temp = True
         while self.running:
             self.running = self.handle_events()
-            # if temp:
-            #     self.visualizer.visualize_sound('bum.mp3')
-            #     temp = False
 
             if self.visualizer.sound_playing:
                 self.visualizer.visualizer()

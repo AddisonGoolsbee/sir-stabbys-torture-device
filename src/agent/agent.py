@@ -5,7 +5,13 @@ import time
 from dotenv import load_dotenv
 from enum import Enum
 import random
-import serial
+
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
+sys.path.append(src_dir)
+
+from src.visuals.visualizer import Visualizer
+from src.utils import text_to_speech
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -19,41 +25,36 @@ class State(Enum):
     DEATH = 2
 
 class Agent:
+    PLAY_AUDIO = pygame.USEREVENT + 1
+
     def __init__(self):
         load_dotenv()
         self.lock = threading.Lock()
         self.state = State.START
         self.victim_message = ''
+        self.is_accepting_input = True
+        self.running = True
 
         self.prev_state = self.state
         self.prev_victim_message = self.victim_message
 
-        self.start_esp_thread()
-        self.start_victim_thread()
+        self.start_thread(self.receiver)
+        self.start_thread(self.console)
 
-        # Serial setup
-        # self.esp_serial = serial.Serial(os.environ.get('AGENT_ESP_PORT'), 9600, timeout=1)
-    
-     # thread to read inputs from Sir Stabby
-    def start_esp_thread(self):
-        esp_thread = threading.Thread(target=self.read_esp)
-        esp_thread.daemon = True
-        esp_thread.start()
-        
-     # thread to read inputs from victim room
-    def start_victim_thread(self):
-        victim_thread = threading.Thread(target=self.read_victim)
-        victim_thread.daemon = True
-        victim_thread.start() 
+        pygame.init()
 
-    def read_esp(self):
-        while True:
-            # sample code, change this
-            with self.lock:
-                self.state = State.DEATH if self.state == State.START else State.START
-            time.sleep(random.random() * 3)
+        self.screen = self.init_screen()
+        self.clock = pygame.time.Clock()
+        self.visualizer = Visualizer(self.screen)
+        self.running = True
 
-    def read_victim(self):
+    def start_thread(self, func):
+        thread = threading.Thread(target=func)
+        thread.daemon = True
+        thread.start()
+
+    # receive messages from victim
+    def receiver(self):
         count = 0
         while True:
             # sample code, change this
@@ -61,17 +62,55 @@ class Agent:
                 count += 1
                 self.victim_message = count
             time.sleep(random.random() * 3)
+    
+    # thread where the bulk of the logic happens
+    def console(self):
+        while True:
+            if self.is_accepting_input:
+                input_string = input()
+                text_to_speech(input_string, play_sound=False)
+                pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
+                self.is_accepting_input = False
+            time.sleep(0.1)
+    
+    def init_screen(self):
+        infoObject = pygame.display.Info()
+        screen_w = int(infoObject.current_w)
+        screen_h = int(infoObject.current_w / 2)
+        screen = pygame.display.set_mode([screen_w, screen_h])
+        return screen
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == self.PLAY_AUDIO:
+                print('playing listened audio')
+                self.visualizer.visualize_sound('speech.mp3')
+        return True
 
     def run(self):
-        while True:
-            self._handleStateChange()
+        while self.running:
+            self.running = self.handle_events()
+
+            if self.visualizer.sound_playing:
+                self.visualizer.visualizer()
+
+            pygame.display.flip()
+            self.clock.tick(60)
+
+        pygame.quit()
+
+    # def run(self):
+    #     while True:
+    #         self._handleStateChange()
             
-    def _handleStateChange(self):
-        with self.lock:
-            if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
-                print(self.victim_message, self.state)
-                self.prev_state = self.state
-                self.prev_victim_message = self.victim_message
+    # def _handleStateChange(self):
+    #     with self.lock:
+    #         if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
+    #             print(self.victim_message, self.state)
+    #             self.prev_state = self.state
+    #             self.prev_victim_message = self.victim_message
 
 
 if __name__ == '__main__':

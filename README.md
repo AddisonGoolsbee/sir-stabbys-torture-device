@@ -33,10 +33,8 @@ In addition, you will need an OpenAI key, which should be put in a `.env` file f
 
 ...
 
-# TODO
+## TODO
 
-- TTS
-- STT
 - construct base victim pad
 - victim.ino sends victim pad information over wifi
 - construct base sir stabby remastered
