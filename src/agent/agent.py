@@ -428,7 +428,7 @@ class Agent:
             return None
     
     def generate_challenge_prompt(self):
-        self.challenge_prompt = "I am very stupid".lower().strip()
+        self.challenge_prompt = self.phrase_generator().lower().strip()
         return self.challenge_prompt
     
     def generate_challenge(self):
