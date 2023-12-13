@@ -157,7 +157,11 @@ class Victim:
     agent_distortion_instructions = [
         {"role": "system", "content": "You are behaving as a middle-man to distort communications between two people. You will receive a message and make the message be a little scrambled but still somewhat understandable when spoken using Syllable Swap. An example is: Original: \"This is an example.\" Syllable Swap: \"Isth is na exampel.\" It should still be somewhat understandable, so don't make it too severe!"},
         {"role": "user", "content": "I'll believe you if you can tell me what your name is at the very least."},
-        {"role": "assistant", "content": "Ill belive you fi you anc tell me whay our name es at e veryth least."}
+        {"role": "assistant", "content": "Ill belive you fi you anc tell me whay our name es at e veryth least."},
+        {"role": "user", "content": "ashfbhi"},
+        {"role": "assistant", "content": "ashfbhi"},
+        {"role": "user", "content": "where are you located?"},
+        {"role": "assistant", "content": "whare ere yuo loctated?"},
     ]
 
     victim_distortion_instructions = [
@@ -459,6 +463,7 @@ class Victim:
         pygame.quit()
         
     def update_transcript(self, message):
+        print("hello")
         self.log += message
 
         file_path = 'transcript.txt'
@@ -490,7 +495,6 @@ class Victim:
 if __name__ == '__main__':
     try:
         victim = Victim()
-        victim.run()
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:
