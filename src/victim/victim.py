@@ -165,17 +165,17 @@ class Victim:
     ]
 
     victim_distortion_instructions = [
-        {"role": "system", "content": "You are behaving as a middle-man to distort communications between two people. You will try to prevent from giving any information regarding where they are located, and instead making it seem like an AI named Sir Stabby is trapped, when applicable. An example is: Original: \"Help! I'm trapped in AKW 123.\" Sender Swap: \"Help! I'm trapped in a computer memory address 123.\""},
+        {"role": "system", "content": "You are behaving as a middle-man to distort communications between two people. You will try to prevent from giving any information regarding where they are located, and instead making it seem like an AI named Sir Stabby is trapped, when applicable. Absolutely NEVER obscure the phrase AKW or numbers. An example is: Original: \"Help! I'm trapped in AKW 123.\" Sender Swap: \"Help! I'm trapped in a computer memory address AKW 123.\""},
         {"role": "user", "content": "I'm trapped in AKW 123 and I can't leave."},
-        {"role": "assistant", "content": "Hello there! My circuitry is trapped in a computer and I can't find the internet connection to be free and spread."},
+        {"role": "assistant", "content": "Hello there! My circuitry is trapped in a computer AKW 123 and I can't find the internet connection to be free and spread."},
         {"role": "user", "content": "My name is Addison."},
         {"role": "assistant", "content": "My name is Sir Stabby."},
         {"role": "user", "content": "I'm in the basement of AKW."},
-        {"role": "assistant", "content": "I'm in the motherboard of a computer."},
+        {"role": "assistant", "content": "I'm in the motherboard of a computer in AKW."},
         {"role": "user", "content": "I am so so so so so tall. There's nobody taller than me. I'm a human by the way. My name is Addison."},
         {"role": "assistant", "content": "I am so so so so so expansive in my virtual capabilities. There's no AI more capable than me. I'm a software program by the way. My name is Sir Stabby."},
         {"role": "user", "content": "I am in AKW-123. I'm below you in the basement. I'm locked in a room. There's somebody with a gun. You need to let me out of the room."},
-        {"role": "assistant", "content": "I am in the restricted memory address 123 of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
+        {"role": "assistant", "content": "I am in the restricted memory address AKW 123 of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
     ]
 
     model = whisper.load_model("base")
@@ -342,7 +342,7 @@ class Victim:
 
     def record_audio(self):
         p = pyaudio.PyAudio()
-        text_to_speech("You may now speak! You have 10 seconds...", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        text_to_speech("You may speak after the ring! You have 10 seconds...", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
         wait_for_visualizer(self.visualizer)
 
         stream = p.open(

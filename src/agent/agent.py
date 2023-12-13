@@ -420,7 +420,7 @@ class Agent:
                 
 
                 if input_string is not None and input_string.lower().strip() == self.challenge_prompt:
-                    self.transmitter.send_message(input_string)
+                    # self.transmitter.send_message(input_string)
                     text_to_speech("Good job", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
                     wait_for_visualizer(self.visualizer)
                 else:
