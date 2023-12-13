@@ -151,7 +151,7 @@ class Victim:
     CHUNK = 1024
     RECORD_SECONDS = 10
     WAVE_OUTPUT_FILENAME = "output.wav"
-    AUDIO_DEVICE_INDEX = 0
+    AUDIO_DEVICE_INDEX = 2
     audio = pyaudio.PyAudio()
 
     agent_distortion_instructions = [
@@ -203,12 +203,14 @@ class Victim:
         while not self.transmitter.connected:
             time.sleep(0.1)
 
-        iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
+        
+
+        iphone_mic_index = self.find_device_index("Addison’s iPhone Microphone")
         if iphone_mic_index is not None:
             self.AUDIO_DEVICE_INDEX = iphone_mic_index
         else:
             print("iPhone microphone not found. Please ensure it is connected. Defaulting to AUDIO_INDEX = 0")
-            self.AUDIO_DEVICE_INDEX = 0
+            self.AUDIO_DEVICE_INDEX = 2
 
         pygame.init()
 
@@ -359,7 +361,7 @@ class Victim:
             frames.append(data)
 
         stream.stop_stream()
-        text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!! I am processing what you said", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
         wait_for_visualizer(self.visualizer)
 
         stream.close()
@@ -432,8 +434,8 @@ class Victim:
 
     def init_screen(self):
         infoObject = pygame.display.Info()
-        screen_w = int(infoObject.current_w / 2)
-        screen_h = int(infoObject.current_w / 2)
+        screen_w = int(infoObject.current_w)
+        screen_h = int(infoObject.current_w * 2 / 3)
         screen = pygame.display.set_mode([screen_w, screen_h])
         return screen
     
@@ -459,7 +461,6 @@ class Victim:
         pygame.quit()
         
     def update_transcript(self, message):
-        print("hello")
         self.log += message
 
         file_path = 'transcript.txt'
