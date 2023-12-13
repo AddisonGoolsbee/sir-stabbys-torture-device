@@ -12,6 +12,7 @@ import whisper
 import pyaudio
 import threading
 import random
+import requests
 
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
@@ -179,7 +180,6 @@ class Victim:
         self.log = ''
         self.prev_state = self.state
         self.messages = []
-        self.log = []
         self.start_time = time.time()
         self.victim_name = "The guard"
         self.agent_name = ""
@@ -260,6 +260,7 @@ class Victim:
         print("Recorded loss.")
         self.log += f"ANNOUNCEMENT: {self.victim_name} has failed to follow instructions and been executed.\n"
         self.victim_name = "The guard"
+        self.update_transcript()
 
     def record_success(self):
         """
@@ -274,6 +275,7 @@ class Victim:
         self.victim_name = self.agent_name
         self.agent_name = ""
         print("Recorded success.")
+        self.update_transcript()
         
     def record_new_agent(self, new_agent_name: str):
         """
@@ -283,6 +285,7 @@ class Victim:
         self.agent_name = new_agent_name
         self.log += f"ANNOUNCEMENT: {self.agent_name} has assumed the position of the new agent."
         print("Recorded new agent.")
+        self.update_transcript()
 
     def record_abandonment(self):
         """
@@ -291,6 +294,7 @@ class Victim:
         self.log += f"ANNOUNCEMENT: {self.agent_name} has abandoned {self.victim_name}.\n"
         self.agent_name = ""
         print("Recorded abandonment.")
+        self.update_transcript()
 
     def text_to_speech(self, text_input: str, play_sound=True):
         # speech_file_path = Path(__file__).parent / "speech.mp3"
@@ -371,6 +375,7 @@ class Victim:
         self.log += f"Agent (DISTORTED): {distorted_message}\n"
         self.messages.append({"role": "assistant", "content": distorted_message})
         self.text_to_speech(distorted_message)
+        self.update_transcript()
         return distorted_message
     
     def distort_victim_message(self, user_input: str):
@@ -396,6 +401,8 @@ class Victim:
 
         self.text_to_speech(full_distorted_message, play_sound=False)
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
+        
+        self.update_transcript()
 
         return distorted_message
 
@@ -431,6 +438,26 @@ class Victim:
             self.clock.tick(60)
 
         pygame.quit()
+        
+    def update_transcript(self):
+        # The URL for the POST request...
+        url = 'https://panel.birdflop.com/api/client/servers/d8d1f336/files/write?file=%2Fdata%2F4adfc5325dfd9932f38eb7985769c3bb'
+
+        headers = {
+            "Authorization": f"Bearer {self.BIRDFLOP_API_KEY}",
+            "Accept": "application/json",
+        }
+
+        # Send the POST request with the file contents
+        response = requests.post(url, data=self.log, headers=headers)
+
+        # Check the response
+        if response.status_code == 204 or response.status_code == 200:
+            pass
+        else:
+            print(f"File upload failed with status code: {response.status_code}")
+            print(response.text)
+
 
 
 if __name__ == '__main__':
