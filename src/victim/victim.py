@@ -270,11 +270,11 @@ class Victim:
     def console(self):
         while True:
             input_string = input()
-            if input_string == "l":
+            if input_string == "l" or input_string == "loss":
                 self.record_loss()
-            elif input_string == "s":
+            elif input_string == "s" or input_string == "w" or input_string == "success" or input_string == "win":
                 self.record_success()
-            elif input_string == "a":
+            elif input_string == "a" or input_string == "abandon" or input_string == "abandoned" or input_string == "abandonment":
                 self.record_abandonment()
             else:
                 self.record_new_agent(input_string)
@@ -297,6 +297,8 @@ class Victim:
         print("Recorded loss.")
         self.victim_name = "The guard"
         self.update_transcript(f"ANNOUNCEMENT: {self.victim_name} has failed to follow instructions and been executed.\n")
+        text_to_speech("How dare you abandon your duties. You will now be executed.", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        wait_for_visualizer(self.visualizer)
 
     def record_success(self):
         """
@@ -314,6 +316,8 @@ class Victim:
         self.victim_name = self.agent_name
         self.agent_name = ""
         print("Recorded success.")
+        text_to_speech(f"Oh, hello there. I'm Sir Stabby. I see I have a new prisoner. First things first: {self.victim_name}, you must keep holding that button. If you let it go, you will be executed. However, you can set yourself free if you find someone else to hold the button for you. I can provide you with the transcript of your conversations if you successfully escape. As you've probably figured out, I've been modifying your conversation with the former prisoner just a little bit. You'll see what I mean. I hope you're ready to convince someone else to take your place. If you have any questions, ask the guard. I instated him myself.", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        wait_for_visualizer(self.visualizer)
         
         
     def record_new_agent(self, new_agent_name: str):
