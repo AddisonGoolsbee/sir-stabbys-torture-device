@@ -380,41 +380,42 @@ class Agent:
     # thread where the bulk of the logic happens
     def console(self):
         while True:
-            if self.state in [State.RESPONSE, State.CHALLENGE]:
-                input_string = self.get_input('Message Sir Stabby:  ', AGENT_RESPONSE_TIME if self.state == State.RESPONSE else AGENT_CHALLENGE_TIME)
+            if self.state == State.CHALLENGE:
+                input_string = self.get_input('Message Sir Stabby:  ', AGENT_CHALLENGE_TIME)
 
-                if self.state == State.CHALLENGE:
-                    if input_string.lower().strip() == self.challenge_prompt:
-                        self.transmitter.send_message(input_string)
-                        text_to_speech("Good job", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-                        wait_for_visualizer(self.visualizer)
-                    else:
-                        atrocity_tuple = self.generate_atrocity()
-                        message = f"You failed the challenge. {self.commit_atrocity(atrocity_tuple)}"
-                        self.transmitter.send_message(f'Atrocity: {message}')
-
-                        self.set_victim_message(None)
-                        text_to_speech(message, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-                        wait_for_visualizer(self.visualizer)
-
+                if input_string.lower().strip() == self.challenge_prompt:
+                    self.transmitter.send_message(input_string)
+                    text_to_speech("Good job", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    wait_for_visualizer(self.visualizer)
                 else:
-                    if input_string is not None:
-                        self.transmitter.send_message(input_string)
-                        text_to_speech("Ok, I have received the message", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-                        wait_for_visualizer(self.visualizer)
+                    atrocity_tuple = self.generate_atrocity()
+                    message = f"You failed the challenge. {self.commit_atrocity(atrocity_tuple)}"
+                    self.transmitter.send_message(f'Atrocity: {message}')
 
-                        if not self.victim_message:
-                            self.generate_challenge()
-                            self.state = State.CHALLENGE
-                    else:
-                        atrocity_tuple = self.generate_atrocity()
-                        message = f"You did not enter a message. {self.commit_atrocity(atrocity_tuple)}"
-                        self.transmitter.send_message(f'Atrocity: {message}')
-                        text_to_speech(message, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-                        wait_for_visualizer(self.visualizer)
-                        text_to_speech(f'{"Please send me a message, I crave human interaction. "} You have {AGENT_RESPONSE_TIME} seconds to respond, otherwise I will commit an atrocity', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-                        wait_for_visualizer(self.visualizer)
-                        self.set_victim_message(None)
+                    self.set_victim_message(None)
+                    text_to_speech(message, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    wait_for_visualizer(self.visualizer)
+                
+            elif self.state == State.RESPONSE:
+                input_string = self.get_input('Message Sir Stabby:  ', AGENT_RESPONSE_TIME)
+
+                if input_string is not None:
+                    self.transmitter.send_message(input_string)
+                    text_to_speech("Ok, I have received the message", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    wait_for_visualizer(self.visualizer)
+
+                    if not self.victim_message:
+                        self.generate_challenge()
+                        self.state = State.CHALLENGE
+                else:
+                    atrocity_tuple = self.generate_atrocity()
+                    message = f"You did not enter a message. {self.commit_atrocity(atrocity_tuple)}"
+                    self.transmitter.send_message(f'Atrocity: {message}')
+                    text_to_speech(message, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    wait_for_visualizer(self.visualizer)
+                    text_to_speech(f'{"Please send me a message, I crave human interaction. "} You have {AGENT_RESPONSE_TIME} seconds to respond, otherwise I will commit an atrocity', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    wait_for_visualizer(self.visualizer)
+                    self.set_victim_message(None)
 
             time.sleep(0.1)
     
