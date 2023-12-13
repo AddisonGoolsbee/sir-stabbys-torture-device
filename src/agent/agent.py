@@ -40,7 +40,6 @@ atrocity_tuples = [
     ("salt shakers", "shakers where the salt clumps together"),
     ("umbrellas", "umbrellas that always invert in the wind"),
     ("hairbrushes", "brushes that static your hair"),
-    ("wine glasses", "glasses that always leave a ring"),
     ("yoga mats", "mats that slightly slip"),
     ("toasters", "toasters that unevenly toast bread"),
     ("running shoes", "shoes with laces that constantly untie"),
