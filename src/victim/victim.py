@@ -20,7 +20,7 @@ src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
 sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
-from src.utils import text_to_speech
+from src.utils import text_to_speech, wait_for_visualizer
 from src.transmitter import Transmitter
 from src.constants import *
 
@@ -328,20 +328,12 @@ class Victim:
         self.agent_name = ""
         print("Recorded abandonment.")
         self.update_transcript(f"ANNOUNCEMENT: {self.agent_name} has abandoned {self.victim_name}.\n")
-    
-    def wait_for_visualizer(self):
-        has_visualizer_started = False
-        while True:
-            if self.visualizer.sound_playing:
-                has_visualizer_started = True
-                time.sleep(0.1)
-            elif has_visualizer_started:
-                break
+
 
     def record_audio(self):
         p = pyaudio.PyAudio()
         text_to_speech("You may now speak! You have 10 seconds...", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-        self.wait_for_visualizer()
+        wait_for_visualizer(self.visualizer)
 
         stream = p.open(
             format=self.FORMAT,
@@ -360,7 +352,7 @@ class Victim:
 
         stream.stop_stream()
         text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-        self.wait_for_visualizer()
+        wait_for_visualizer(self.visualizer)
 
         stream.close()
         p.terminate()
@@ -423,7 +415,7 @@ class Victim:
 
         self.transmitter.send_message(distorted_message)
         text_to_speech(full_distorted_message, pygame.event.Event(self.PLAY_AUDIO))
-        self.wait_for_visualizer()
+        wait_for_visualizer(self.visualizer)
         
         self.update_transcript(f"Victim (DISTORTED): {full_distorted_message}\n")
 

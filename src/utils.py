@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import openai
 
 with open(os.devnull, 'w') as f:
@@ -29,3 +30,11 @@ def text_to_speech(text_input: str, pygame_event=None):
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
             
+def wait_for_visualizer(visualizer):
+    has_visualizer_started = False
+    while True:
+        if visualizer.sound_playing:
+            has_visualizer_started = True
+            time.sleep(0.1)
+        elif has_visualizer_started:
+            break

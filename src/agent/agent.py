@@ -297,7 +297,7 @@ src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
 sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
-from src.utils import text_to_speech
+from src.utils import text_to_speech, wait_for_visualizer
 from src.transmitter import Transmitter
 from src.constants import *
 
@@ -327,7 +327,6 @@ class Agent:
         self.victim_message = ''
         self.is_accepting_input = True
         self.running = True
-        self.timer = 0
         self.atrocity_score = 0
 
         self.input_queue = queue.Queue()
@@ -376,43 +375,31 @@ class Agent:
     
     def set_victim_message(self, data, loop=False):
         if loop:
-            has_visualizer_started = False
-            while True:
-                if self.visualizer.sound_playing:
-                    has_visualizer_started = True
-                elif has_visualizer_started:
-                    has_visualizer_started = False
-                    break
-                time.sleep(0.1)
+            wait_for_visualizer(self.visualizer)
 
         self.victim_message = data
         self.state = State.WAITING_RESPONSE
-        self.timer = time.time()
         text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond, otherwise I will commit an atrocity', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        wait_for_visualizer(self.visualizer)
 
     # thread where the bulk of the logic happens
     def console(self):
-        has_visualizer_started = False
         while True:
             if self.state in [State.WAITING_CHALLENGE, State.WAITING_RESPONSE]:
-                if self.visualizer.sound_playing:
-                    has_visualizer_started = True
-                    pass
-                elif has_visualizer_started:
-                    if self.state == State.WAITING_RESPONSE:
-                        print('response mode')
-                        self.state = State.RESPONSE
-                    elif self.state == State.WAITING_CHALLENGE:
-                        print('challenge mode')
-                        self.state = State.CHALLENGE
-                    has_visualizer_started = False
+                if self.state == State.WAITING_RESPONSE:
+                    print('response mode')
+                    self.state = State.RESPONSE
+                elif self.state == State.WAITING_CHALLENGE:
+                    print('challenge mode')
+                    self.state = State.CHALLENGE
             if self.state in [State.RESPONSE, State.CHALLENGE]:
                 input_string = self.get_input('Message Sir Stabby:  ', AGENT_RESPONSE_TIME)
 
                 if input_string is not None:
                     self.transmitter.send_message(input_string)
                     text_to_speech(input_string, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-                    self.state = State.WAITING
+                    wait_for_visualizer(self.visualizer)
+                    self.state = State.WAITING_CHALLENGE
                 else:
                     atrocity_tuple = self.generate_atrocity()
                     message = f"You did not enter a message. {self.commit_atrocity(atrocity_tuple)}"
