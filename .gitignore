@@ -2,6 +2,7 @@
 **/*.wav
 **/*.m4a
 **/*test.py
+**/transcript.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
