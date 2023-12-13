@@ -489,6 +489,7 @@ class Victim:
 if __name__ == '__main__':
     try:
         victim = Victim()
+        victim.run()
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:

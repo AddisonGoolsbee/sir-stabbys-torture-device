@@ -35,6 +35,6 @@ def wait_for_visualizer(visualizer):
     while True:
         if visualizer.sound_playing:
             has_visualizer_started = True
-            time.sleep(0.1)
         elif has_visualizer_started:
             break
+        time.sleep(0.1)

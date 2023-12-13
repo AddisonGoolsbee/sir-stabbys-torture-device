@@ -378,9 +378,9 @@ class Agent:
             wait_for_visualizer(self.visualizer)
 
         self.victim_message = data
-        self.state = State.WAITING_RESPONSE
         text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond, otherwise I will commit an atrocity', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
         wait_for_visualizer(self.visualizer)
+        self.state = State.WAITING_RESPONSE
 
     # thread where the bulk of the logic happens
     def console(self):
@@ -406,7 +406,6 @@ class Agent:
                     self.transmitter.send_message(f'Atrocity: {message}')
                     text_to_speech(message, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
                     self.set_victim_message(None, True)
-                
             time.sleep(0.1)
     
     def get_input(self, message, timeout):
