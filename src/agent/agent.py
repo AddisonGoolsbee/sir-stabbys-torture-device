@@ -9,6 +9,10 @@ from enum import Enum
 import random
 from inputimeout import inputimeout, TimeoutOccurred
 from num2words import num2words
+import termios
+import tty
+import threading
+import select
 
 atrocity_score = 0
 
@@ -466,12 +470,10 @@ class Agent:
     
     def get_input(self, message, timeout):
         """
-        wrapper function for input() so that it can be interrupted after a given amount of time
+        New implementation of get_input using timed input with backspace support.
         """
-        try:
-            return inputimeout(prompt=message, timeout=timeout)
-        except TimeoutOccurred:
-            return None
+        print(message, end='', flush=True)
+        return timed_input_with_backspace(timeout)
     
     def generate_challenge_prompt(self):
         self.challenge_prompt = self.phrase_generator().lower().strip()
@@ -517,7 +519,7 @@ class Agent:
 
         pygame.quit()
         
-    def phrase_generator():
+    def phrase_generator(self):
         # Expanded lists
         subjects = [
             "The cat", "I", "A magician", "The computer", "She", "He", "The robot", "Our neighbor", 
@@ -556,6 +558,46 @@ class Agent:
 
         phrase = f"{subject} {verb} {complement}"
         return phrase
+
+    def setup_term(self, fd, when=termios.TCSAFLUSH):
+        mode = termios.tcgetattr(fd)
+        mode[tty.LFLAG] = mode[tty.LFLAG] & ~(termios.ECHO | termios.ICANON)
+        mode[6][termios.VMIN] = 1
+        mode[6][termios.VTIME] = 0
+        termios.tcsetattr(fd, when, mode)
+
+    def restore_term(self, fd, mode, when=termios.TCSAFLUSH):
+        termios.tcsetattr(fd, when, mode)
+
+    def is_data(self):
+        return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
+
+    def timed_input_with_backspace(self, timeout):
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        self.setup_term(fd)
+
+        input_str = ''
+        end_time = time.time() + timeout
+
+        try:
+            while time.time() < end_time:
+                if self.is_data():
+                    char = sys.stdin.read(1)
+                    if char == '\n':
+                        break
+                    elif char == '\x7f':
+                        if input_str:
+                            input_str = input_str[:-1]
+                            sys.stdout.write('\b \b')
+                    else:
+                        input_str += char
+                        sys.stdout.write(char)
+                sys.stdout.flush()
+        finally:
+            self.restore_term(fd, old_settings)
+        return input_str
+
     # def run(self):
     #     while True:
     #         self._handleStateChange()
