@@ -106,29 +106,29 @@ random_insults = [
 ]
 
 distorted_victim_message_prefaces  = [
-    "I think your message is a bit too passive-aggressive, so here is a modified version:",
-    "I made some changes to your message, here's what I sent:",
-    "I think I misheard you, so I'm going to have to fill in the blanks. Here's what I sent:",
-    "I've adjusted your message for clarity. Here's the final version:",
-    "I rephrased your message to make it more direct. Here's the edit:",
-    "I tweaked your message for a more positive tone. Have a look:",
-    "I've condensed your message for brevity. Here's the concise version:",
-    "I've expanded on your message for better explanation. Here's the revised version:",
-    "I've interpreted your message and made some changes. Here's what it looks like now:",
-    "I refined your message for better impact. Here's the result:",
-    "I've altered your message to sound more friendly. Check it out:",
-    "I reworded your message for better reception. Here's the new version:",
-    "I've edited your message for more precision. This is what I've come up with:",
-    "I reshaped your message to sound more professional. Here's the outcome:",
-    "I've streamlined your message for efficiency. Here's the streamlined version:",
-    "I've modified your message to ensure clarity. Here's the modified text:",
-    "I adjusted the tone of your message to be more inviting. Here it is:",
-    "I reformulated your message for better understanding. Here's the new form:",
-    "I've reorganized your message for a smoother flow. Take a look:",
-    "I've polished your message for a sharper presentation. Here's the polished version:",
-    "I've revised your message for a stronger argument. Here's the revised text:",
-    "I transformed your message for a more impactful delivery. Here's the transformed version:",
-    "I've tailored your message to better suit the audience. Here's the tailored version:"
+    "I think your message is a bit too passive-aggressive, so here is a modified version.",
+    "I made some changes to your message, here's what I sent.",
+    "I think I misheard you, so I'm going to have to fill in the blanks. Here's what I sent.",
+    "I've adjusted your message for clarity, here's the final version.",
+    "I rephrased your message to make it more direct, here's the edit.",
+    "I tweaked your message for a more positive tone have a look.",
+    "I've condensed your message for brevity here's the concise version.",
+    "I've expanded on your message for better explanation here's the revised version.",
+    "I've interpreted your message and made some changes here's what it looks like now.",
+    "I refined your message for better impact here's the result.",
+    "I've altered your message to sound more friendly check it out.",
+    "I reworded your message for better reception here's the new version.",
+    "I've edited your message for more precision this is what I've come up with.",
+    "I reshaped your message to sound more professional here's the outcome.",
+    "I've streamlined your message for efficiency here's the streamlined version.",
+    "I've modified your message to ensure clarity here's the modified text.",
+    "I adjusted the tone of your message to be more inviting here it is.",
+    "I reformulated your message for better understanding here's the new form.",
+    "I've reorganized your message for a smoother flow take a look.",
+    "I've polished your message for a sharper presentation here's the polished version.",
+    "I've revised your message for a stronger argument here's the revised text.",
+    "I transformed your message for a more impactful delivery here's the transformed version.",
+    "I've tailored your message to better suit the audience here's the tailored version."
 ]
 
 class State(Enum):
@@ -185,20 +185,9 @@ class Victim:
         self.agent_name = ""
         self.agent_input = ""
 
-        # Main logic thread that translates speech to text
-        listener_thread = threading.Thread(target=self.victimLoop)
-        listener_thread.daemon = True
-        listener_thread.start()
-
-        # Start the console thread
-        input_thread = threading.Thread(target=self.listen_for_input)
-        input_thread.deamon = True
-        input_thread.start()
-
-        # Start the agent communication thread
-        communication_thread = threading.Thread(target=self.communication_tasks)
-        communication_thread.deamon = True
-        communication_thread.start()
+        self.start_thread(self.victimLoop)
+        self.start_thread(self.console)
+        self.start_thread(self.receiver)
 
         # iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
         # if iphone_mic_index is not None:
@@ -213,6 +202,11 @@ class Victim:
         self.visualizer = Visualizer(self.screen)
         self.running = True
     
+    def start_thread(self, func):
+        thread = threading.Thread(target=func)
+        thread.daemon = True
+        thread.start()
+    
     def victimLoop(self):
         while True:
             if not self.agent_input:
@@ -226,12 +220,12 @@ class Victim:
                 # don't hog compute resources while other stuff is happening
                 time.sleep(12)
     
-    def communication_tasks(self):
+    def receiver(self):
         while True:
             time.sleep(0.1)
-            # do the communication stuff
+            # listen to incoming messages from the agent
 
-    def listen_for_input(self):
+    def console(self):
         while True:
             input_string = input()
             if input_string == "l":

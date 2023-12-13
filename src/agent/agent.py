@@ -5,7 +5,12 @@ import time
 from dotenv import load_dotenv
 from enum import Enum
 import random
-import serial
+
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
+sys.path.append(src_dir)
+
+from src.visuals.visualizer import Visualizer
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -28,32 +33,15 @@ class Agent:
         self.prev_state = self.state
         self.prev_victim_message = self.victim_message
 
-        self.start_esp_thread()
-        self.start_victim_thread()
-
-        # Serial setup
-        # self.esp_serial = serial.Serial(os.environ.get('AGENT_ESP_PORT'), 9600, timeout=1)
-    
-     # thread to read inputs from Sir Stabby
-    def start_esp_thread(self):
-        esp_thread = threading.Thread(target=self.read_esp)
-        esp_thread.daemon = True
-        esp_thread.start()
+        self.start_thread(self.receiver)
         
-     # thread to read inputs from victim room
-    def start_victim_thread(self):
-        victim_thread = threading.Thread(target=self.read_victim)
-        victim_thread.daemon = True
-        victim_thread.start() 
+    
+    def start_thread(self, func):
+        thread = threading.Thread(target=func)
+        thread.daemon = True
+        thread.start()
 
-    def read_esp(self):
-        while True:
-            # sample code, change this
-            with self.lock:
-                self.state = State.DEATH if self.state == State.START else State.START
-            time.sleep(random.random() * 3)
-
-    def read_victim(self):
+    def receiver(self):
         count = 0
         while True:
             # sample code, change this
