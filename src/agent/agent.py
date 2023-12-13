@@ -519,7 +519,7 @@ class Agent:
 
         pygame.quit()
         
-    def phrase_generator(self):
+    def phrase_generator(selfself):
         # Expanded lists
         subjects = [
             "The cat", "I", "A magician", "The computer", "She", "He", "The robot", "Our neighbor", 
