@@ -1,6 +1,8 @@
 import os
 import sys
 import openai
+import socket
+import time
 
 with open(os.devnull, 'w') as f:
     old_stdout = sys.stdout

@@ -1,10 +1,10 @@
 import os
+import socket
 import sys
 import threading
 import time
 from dotenv import load_dotenv
 from enum import Enum
-import random
 
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
@@ -13,6 +13,7 @@ sys.path.append(src_dir)
 from src.visuals.visualizer import Visualizer
 from src.utils import text_to_speech
 from src.transmitter import Transmitter
+from src.constants import *
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -42,7 +43,7 @@ class Agent:
         self.start_thread(self.receiver)
         self.start_thread(self.console)
 
-        self.transmitter = Transmitter('127.0.0.1', 65432) 
+        self.transmitter = Transmitter(VICTIM_IP, VICTIM_PORT) 
         self.transmitter.start()
 
         while not self.transmitter.connected:
@@ -62,19 +63,27 @@ class Agent:
 
     # receive messages from victim
     def receiver(self):
-        count = 0
-        while True:
-            # sample code, change this
-            with self.lock:
-                count += 1
-                self.victim_message = count
-            time.sleep(random.random() * 3)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((AGENT_IP, AGENT_PORT))
+            s.listen()
+            print(f"Server listening on {AGENT_IP}:{AGENT_PORT}")
+
+            conn, addr = s.accept()
+            with conn:
+                print(f"Connected by {addr}")
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    print(f"Received: {data.decode()}")
+                    self.victim_message = data.decode()
     
     # thread where the bulk of the logic happens
     def console(self):
         while True:
             if self.is_accepting_input:
                 input_string = input()
+                print('hmmmm')
                 self.transmitter.send_message(input_string)
                 text_to_speech(input_string, play_sound=False)
                 pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))

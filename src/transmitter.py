@@ -12,13 +12,16 @@ class Transmitter:
         self.thread = threading.Thread(target=self.run, daemon=True)
 
     def connect(self):
-        try:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.connect((self.host, self.port))
-            self.connected = True
-        except socket.error as e:
-            print(f"Could not connect: {e}")
-            self.connected = False
+        while True:
+            try:
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.connect((self.host, self.port))
+                self.connected = True
+                break
+            except socket.error as e:
+                print(f"Could not connect: {e}")
+                self.connected = False
+            time.sleep(5)
 
     def send_message(self, message):
         with self.lock:

@@ -1,4 +1,5 @@
 from enum import Enum
+import socket
 import threading
 import time
 import openai
@@ -21,6 +22,7 @@ sys.path.append(src_dir)
 from src.visuals.visualizer import Visualizer
 from src.utils import text_to_speech
 from src.transmitter import Transmitter
+from src.constants import *
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -179,21 +181,20 @@ class Victim:
     def __init__(self):
         self.lock = threading.Lock()
         self.state = State.START
-        self.agent_input = ''
+        self.agent_message = ''
         self.log = ''
         self.prev_state = self.state
         self.messages = []
         self.start_time = time.time()
         self.victim_name = "The guard"
         self.agent_name = ""
-        self.agent_input = ""
         self.BIRDFLOP_API_KEY = os.getenv("BIRDFLOP_API_KEY")
 
         self.start_thread(self.victimLoop)
         self.start_thread(self.console)
         self.start_thread(self.receiver)
 
-        self.transmitter = Transmitter('127.0.0.1', 65432) 
+        self.transmitter = Transmitter(AGENT_IP, AGENT_PORT) 
         self.transmitter.start()
 
         while not self.transmitter.connected:
@@ -220,11 +221,11 @@ class Victim:
     
     def victimLoop(self):
         while True:
-            if not self.agent_input:
+            if not self.agent_message:
                 time.sleep(0.1)
             else:
-                self.distort_agent_message(self.agent_input)
-                self.agent_input = ''
+                self.distort_agent_message(self.agent_message)
+                self.agent_message = ''
                 victim_input = self.record_audio()
                 self.distort_victim_message(victim_input)
 
@@ -232,9 +233,20 @@ class Victim:
                 time.sleep(12)
     
     def receiver(self):
-        while True:
-            time.sleep(0.1)
-            # listen to incoming messages from the agent
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((VICTIM_IP, VICTIM_PORT))
+            s.listen()
+            print(f"Server listening on {VICTIM_IP}:{VICTIM_PORT}")
+
+            conn, addr = s.accept()
+            with conn:
+                print(f"Connected by {addr}")
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    print(f"Received: {data.decode()}")
+                    self.agent_message = data.decode()
 
     def console(self):
         while True:
@@ -247,7 +259,7 @@ class Victim:
                 self.record_abandonment()
             else:
                 # self.record_new_agent(input_string)
-                self.agent_input = input_string
+                self.agent_message = input_string
     
     def find_device_index(self, device_name):
         p = pyaudio.PyAudio()
