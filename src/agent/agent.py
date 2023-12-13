@@ -451,7 +451,46 @@ class Agent:
             self.clock.tick(60)
 
         pygame.quit()
+        
+    def phrase_generator():
+        # Expanded lists
+        subjects = [
+            "The cat", "I", "A magician", "The computer", "She", "He", "The robot", "Our neighbor", 
+            "A mysterious stranger", "The chef", "A quick fox", "The teacher", "An old pirate", "The artist", 
+            "The scientist", "A lost traveler", "The musician", "The writer", "An eager student", 
+            "A playful dog", "The inventor", "A curious toddler", "The detective", "A lone wolf", 
+            "The gardener", "A brave knight", "An enthusiastic gamer", "The programmer", "A sleepy koala", 
+            "The ghost", "A sneaky thief", "A diligent bee", "The jolly Santa Claus", "A wandering monk", 
+            "The king", "A digital assistant", "The librarian", "An ancient sorcerer", "A resourceful tailor", "Sir Stabby", "Sir Stabs-a-lot"
+        ]
 
+        verbs = [
+            "jumps", "is working", "sings", "disappears", "does calculus homework", "runs", "speaks", "dances", "writes", 
+            "draws", "whispers", "explodes", "sleeps", "laughs", "cries", "cooks", "travels", "invents", 
+            "paints", "reads", "hacks", "plays", "fixes", "builds", "designs", "flies", "dreams", "schemes", 
+            "listens", "observes", "studies", "examines", "flips", "wanders", "explores", "questions", 
+            "answers", "commands", "recharges", "sharpens a pencil"
+        ]
+
+        complements = [
+            "gracefully.", "in the park.", "loudly.", "suddenly.", "accurately.", "quickly.", "clearly.", 
+            "under the stars.", "with enthusiasm.", "with great skill.", "in silence.", "with a smile.", 
+            "without hesitation.", "with precision.", "in the library.", "at the break of dawn.", "in secret.", 
+            "with a sense of adventure.", "in a dream.", "like a master.", "with a hint of sadness.", 
+            "in the digital world.", "in a flurry.", "in the kitchen.", "across the world.", "with curiosity.", 
+            "in the deepest ocean.", "on a mountain peak.", "in the bustling city.", "in a quiet village.", 
+            "in the ancient ruins.", "with a sense of mystery.", "like a hero.", "in the realm of fantasy.", 
+            "in a virtual reality.", "in the blink of an eye.", "with a touch of magic.", "like a ghost.", 
+            "in the realm of code.", "with a sharp eye.", "alone.", "in the Wattage Wastelands.", "with a knife.", "with a fork.", "with a spoon."
+        ]
+
+        # Generating a random phrase
+        subject = random.choice(subjects)
+        verb = random.choice(verbs)
+        complement = random.choice(complements)
+
+        phrase = f"{subject} {verb} {complement}"
+        return phrase
     # def run(self):
     #     while True:
     #         self._handleStateChange()
