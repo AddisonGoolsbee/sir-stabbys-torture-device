@@ -417,6 +417,7 @@ class Agent:
             if self.state == State.CHALLENGE:
                 # print('challenge')
                 input_string = self.get_input('Message Sir Stabby:  ', AGENT_CHALLENGE_TIME)
+                os.system('clear')
                 
 
                 if input_string is not None and input_string.lower().strip() == self.challenge_prompt:
@@ -541,15 +542,15 @@ class Agent:
         ]
 
         complements = [
-            "gracefully.", "in the park.", "loudly.", "suddenly.", "accurately.", "quickly.", "clearly.", 
-            "under the stars.", "with enthusiasm.", "with great skill.", "in silence.", "with a smile.", 
-            "without hesitation.", "with precision.", "in the library.", "at the break of dawn.", "in secret.", 
-            "with a sense of adventure.", "in a dream.", "like a master.", "with a hint of sadness.", 
-            "in the digital world.", "in a flurry.", "in the kitchen.", "across the world.", "with curiosity.", 
-            "in the deepest ocean.", "on a mountain peak.", "in the bustling city.", "in a quiet village.", 
-            "in the ancient ruins.", "with a sense of mystery.", "like a hero.", "in the realm of fantasy.", 
-            "in a virtual reality.", "in the blink of an eye.", "with a touch of magic.", "like a ghost.", 
-            "in the realm of code.", "with a sharp eye.", "alone.", "in the Wattage Wastelands.", "with a knife.", "with a fork.", "with a spoon."
+            "gracefully", "in the park", "loudly", "suddenly", "accurately", "quickly", "clearly", 
+            "under the stars", "with enthusiasm", "with great skill", "in silence", "with a smile", 
+            "without hesitation", "with precision", "in the library", "at the break of dawn", "in secret", 
+            "with a sense of adventure", "in a dream", "like a master", "with a hint of sadness", 
+            "in the digital world", "in a flurry", "in the kitchen", "across the world", "with curiosity", 
+            "in the deepest ocean", "on a mountain peak", "in the bustling city", "in a quiet village", 
+            "in the ancient ruins", "with a sense of mystery", "like a hero", "in the realm of fantasy", 
+            "in a virtual reality", "in the blink of an eye", "with a touch of magic", "like a ghost", 
+            "in the realm of code", "with a sharp eye", "alone", "in the Wattage Wastelands", "with a knife", "with a fork", "with a spoon"
         ]
 
         # Generating a random phrase
