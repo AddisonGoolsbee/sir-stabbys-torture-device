@@ -3,7 +3,7 @@ import threading
 import time
 import openai
 from dotenv import load_dotenv
-from pathlib import Path
+# from pathlib import Path
 import openai
 import os
 import sys
@@ -12,6 +12,7 @@ import whisper
 import pyaudio
 import threading
 import random
+import requests
 
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
@@ -109,27 +110,27 @@ random_insults = [
 distorted_victim_message_prefaces  = [
     "I think your message is a bit too passive-aggressive, so here is a modified version.",
     "I made some changes to your message, here's what I sent.",
-    "I think I misheard you, so I'm going to have to fill in the blanks. Here's what I sent.",
+    "I think I misheard you, so I'm going to have to fill in the blanks, here's what I sent.",
     "I've adjusted your message for clarity, here's the final version.",
     "I rephrased your message to make it more direct, here's the edit.",
-    "I tweaked your message for a more positive tone have a look.",
-    "I've condensed your message for brevity here's the concise version.",
-    "I've expanded on your message for better explanation here's the revised version.",
-    "I've interpreted your message and made some changes here's what it looks like now.",
-    "I refined your message for better impact here's the result.",
-    "I've altered your message to sound more friendly check it out.",
-    "I reworded your message for better reception here's the new version.",
-    "I've edited your message for more precision this is what I've come up with.",
-    "I reshaped your message to sound more professional here's the outcome.",
-    "I've streamlined your message for efficiency here's the streamlined version.",
-    "I've modified your message to ensure clarity here's the modified text.",
-    "I adjusted the tone of your message to be more inviting here it is.",
-    "I reformulated your message for better understanding here's the new form.",
-    "I've reorganized your message for a smoother flow take a look.",
-    "I've polished your message for a sharper presentation here's the polished version.",
-    "I've revised your message for a stronger argument here's the revised text.",
-    "I transformed your message for a more impactful delivery here's the transformed version.",
-    "I've tailored your message to better suit the audience here's the tailored version."
+    "I tweaked your message for a more positive tone, have a look.",
+    "I've condensed your message for brevity, here's the concise version.",
+    "I've expanded on your message for better explanation, here's the revised version.",
+    "I've interpreted your message and made some changes, here's what it looks like now.",
+    "I refined your message for better impact, here's the result.",
+    "I've altered your message to sound more friendly, check it out.",
+    "I reworded your message for better reception, here's the new version.",
+    "I've edited your message for more precision, this is what I've come up with.",
+    "I reshaped your message to sound more professional, here's the outcome.",
+    "I've streamlined your message for efficiency, here's the streamlined version.",
+    "I've modified your message to ensure clarity, here's the modified text.",
+    "I adjusted the tone of your message to be more inviting, here it is.",
+    "I reformulated your message for better understanding, here's the new form.",
+    "I've reorganized your message for a smoother flow, take a look.",
+    "I've polished your message for a sharper presentation, here's the polished version.",
+    "I've revised your message for a stronger argument, here's the revised text.",
+    "I transformed your message for a more impactful delivery, here's the transformed version.",
+    "I've tailored your message to better suit the audience, here's the tailored version."
 ]
 
 class State(Enum):
@@ -139,6 +140,7 @@ class State(Enum):
     WIN = 4
 class Victim:
     load_dotenv()
+    print(os.environ)
 
     PLAY_AUDIO = pygame.USEREVENT + 1
     FORMAT = pyaudio.paInt16
@@ -180,11 +182,11 @@ class Victim:
         self.log = ''
         self.prev_state = self.state
         self.messages = []
-        self.log = []
         self.start_time = time.time()
         self.victim_name = "The guard"
         self.agent_name = ""
         self.agent_input = ""
+        self.BIRDFLOP_API_KEY = os.getenv("BIRDFLOP_API_KEY")
 
         self.start_thread(self.victimLoop)
         self.start_thread(self.console)
@@ -257,6 +259,7 @@ class Victim:
         print("Recorded loss.")
         self.log += f"ANNOUNCEMENT: {self.victim_name} has failed to follow instructions and been executed.\n"
         self.victim_name = "The guard"
+        self.update_transcript()
 
     def record_success(self):
         """
@@ -271,6 +274,7 @@ class Victim:
         self.victim_name = self.agent_name
         self.agent_name = ""
         print("Recorded success.")
+        self.update_transcript()
         
     def record_new_agent(self, new_agent_name: str):
         """
@@ -280,6 +284,7 @@ class Victim:
         self.agent_name = new_agent_name
         self.log += f"ANNOUNCEMENT: {self.agent_name} has assumed the position of the new agent."
         print("Recorded new agent.")
+        self.update_transcript()
 
     def record_abandonment(self):
         """
@@ -288,6 +293,7 @@ class Victim:
         self.log += f"ANNOUNCEMENT: {self.agent_name} has abandoned {self.victim_name}.\n"
         self.agent_name = ""
         print("Recorded abandonment.")
+        self.update_transcript()
 
     def record_audio(self):
         p = pyaudio.PyAudio()
@@ -347,6 +353,7 @@ class Victim:
         self.log += f"Agent (DISTORTED): {distorted_message}\n"
         self.messages.append({"role": "assistant", "content": distorted_message})
         text_to_speech(distorted_message)
+        self.update_transcript()
         return distorted_message
     
     def distort_victim_message(self, user_input: str):
@@ -372,6 +379,8 @@ class Victim:
 
         text_to_speech(full_distorted_message, play_sound=False)
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
+        
+        self.update_transcript()
 
         return distorted_message
 
@@ -404,6 +413,26 @@ class Victim:
             self.clock.tick(60)
 
         pygame.quit()
+        
+    def update_transcript(self):
+        # The URL for the POST request...
+        url = 'https://panel.birdflop.com/api/client/servers/d8d1f336/files/write?file=%2Fdata%2F4adfc5325dfd9932f38eb7985769c3bb'
+
+        headers = {
+            "Authorization": f"Bearer {self.BIRDFLOP_API_KEY}",
+            "Accept": "application/json",
+        }
+
+        # Send the POST request with the file contents
+        response = requests.post(url, data=self.log, headers=headers)
+
+        # Check the response
+        if response.status_code == 204 or response.status_code == 200:
+            pass
+        else:
+            print(f"File upload failed with status code: {response.status_code}")
+            print(response.text)
+
 
 
 if __name__ == '__main__':

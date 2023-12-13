@@ -2,8 +2,8 @@
 #include <Timeout.h>
 #include <Stepper.h>
 
-#define KNIFE_L_PIN 12
-#define KNIFE_R_PIN 14
+#define KNIFE_L_PIN 18
+#define KNIFE_R_PIN 19
 #define COUNTDOWN_PIN 27
 #define IN1 26
 #define IN2 25
@@ -30,7 +30,7 @@ public:
       } else {
         timer.start(extendedDuration);
         extended = true;
-        servo.write(90); 
+        servo.write(endAngle); 
       }
     }
   }
@@ -136,67 +136,34 @@ private:
 
 
 
-Knife lKnife(KNIFE_L_PIN, 3000, 200, 178, 110);
-Knife rKnife(KNIFE_R_PIN, 5000, 200, 0, 70);
-FingerSwitch fingerSwitch(SWITCH_PIN, 3000);
-Countdown countdown(COUNTDOWN_PIN, 20000);
-Stepper myStepper(2048, IN1, IN3, IN2, IN4);
+Knife lKnife(KNIFE_L_PIN, 3000, 200, 180, 130);
+Knife rKnife(KNIFE_R_PIN, 5000, 200, 65, 115);
+// FingerSwitch fingerSwitch(SWITCH_PIN, 3000);
+// Countdown countdown(COUNTDOWN_PIN, 300000);
+// Stepper myStepper(2048, IN1, IN3, IN2, IN4);
 
-int score = 100;
+int score = 50;
 bool gameEnd = true;
 
-bool handleSwitch() {
-  if (score < 100) {
-    if (fingerSwitch.switchInitiated()) {
-      myStepper.step(-128);
-      return true;
-    } else if (fingerSwitch.switchReleased()) {
-      myStepper.step(80);
-      return true;
-    }
-  }
-  return false;
-}
-
-void initializeGame() {
-  score = 0;
-  gameEnd = false;
-  countdown.initialize();
-  Serial.println("START");
-}
+// void initializeGame() {
+//   score = 0;
+//   gameEnd = false;
+//   countdown.initialize();
+//   Serial.println("START");
+// }
 
 void setup() {
-  myStepper.setSpeed(15);
   Serial.begin(9600);
-  myStepper.step(32);
 }
 
 void loop() {
-  if (!gameEnd) {
-    if (!handleSwitch()) {
-      if (countdown.isFinished()) {
-        Serial.println("LOSS");
-        gameEnd = true;
-      }
-      if (fingerSwitch.switchHeld() && score >= 100) {
-        Serial.println("WIN");
-        gameEnd = true;
-      }
-      lKnife.update();
-      rKnife.update();
-      countdown.update();
-    }
-  } else {
-    if (fingerSwitch.switchHeld()) {
-      initializeGame();
-    }
-  }
+  lKnife.update();
+  rKnife.update();
   
-
-  if (Serial.available() > 0) {
-    String incomingData = Serial.readStringUntil('\n');
-    Serial.println(incomingData);
-    score = incomingData.toInt();
-  }
+  // if (Serial.available() > 0) {
+  //   String incomingData = Serial.readStringUntil('\n');
+  //   Serial.println(incomingData);
+  //   score = incomingData.toInt();
+  // }
 }
  
