@@ -1,5 +1,6 @@
 **/*.mp3
 **/*.wav
+**/*.m4a
 **/*test.py
 
 # Byte-compiled / optimized / DLL files
