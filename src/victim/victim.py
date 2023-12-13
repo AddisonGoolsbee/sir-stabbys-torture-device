@@ -190,14 +190,15 @@ class Victim:
         listener_thread.daemon = True
         listener_thread.start()
 
-        # # Start the console thread
-        # input_thread = threading.Thread(target=self.listen_for_input)
-        # input_thread.deamon = True
-        # input_thread.start()
+        # Start the console thread
+        input_thread = threading.Thread(target=self.listen_for_input)
+        input_thread.deamon = True
+        input_thread.start()
 
-        # # Start the agent communication thread
-        # communication_thread = threading.Thread(target=self.communication_tasks)
-        # communication_thread.start()
+        # Start the agent communication thread
+        communication_thread = threading.Thread(target=self.communication_tasks)
+        communication_thread.deamon = True
+        communication_thread.start()
 
         # iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
         # if iphone_mic_index is not None:
@@ -213,7 +214,7 @@ class Victim:
         self.running = True
     
     def victimLoop(self):
-        self.agent_input = 'eggs eggs eggs'
+        # self.agent_input = 'eggs eggs eggs'
         while True:
             if not self.agent_input:
                 time.sleep(0.1)
@@ -228,7 +229,7 @@ class Victim:
     
     def communication_tasks(self):
         while True:
-            pass
+            time.sleep(0.1)
             # do the communication stuff
 
     def listen_for_input(self):
@@ -241,16 +242,18 @@ class Victim:
             elif input_string == "a":
                 self.record_abandonment()
             else:
-                self.record_new_agent(input_string)
+                # self.record_new_agent(input_string)
+                self.agent_input = input_string
     
     def find_device_index(self, device_name):
+        p = pyaudio.PyAudio()
         device_index = None
-        for i in range(self.audio.get_device_count()):
-            dev = self.audio.get_device_info_by_index(i)
+        for i in range(p.get_device_count()):
+            dev = p.get_device_info_by_index(i)
             if device_name in dev['name']:
                 device_index = i
                 break
-        self.audio.terminate()
+        p.terminate()
         return device_index
     
     def record_loss(self):
@@ -315,8 +318,9 @@ class Victim:
 
 
     def record_audio(self):
+        p = pyaudio.PyAudio()
         self.text_to_speech("You may now speak! You have 10 seconds...")
-        stream = self.audio.open(
+        stream = p.open(
             format=self.FORMAT,
             channels=self.CHANNELS,
             rate=self.RATE,
@@ -334,11 +338,11 @@ class Victim:
         stream.stop_stream()
         self.text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
         stream.close()
-        self.audio.terminate()
+        p.terminate()
 
         waveFile = wave.open(self.WAVE_OUTPUT_FILENAME, 'wb')
         waveFile.setnchannels(self.CHANNELS)
-        waveFile.setsampwidth(self.audio.get_sample_size(self.FORMAT))
+        waveFile.setsampwidth(p.get_sample_size(self.FORMAT))
         waveFile.setframerate(self.RATE)
         waveFile.writeframes(b''.join(frames))
         waveFile.close()
@@ -390,7 +394,7 @@ class Victim:
 
         distorted_message = completion.choices[0].message.content
         stabby_preface = random.choice(distorted_victim_message_prefaces)
-        full_distorted_message = stabby_preface + distorted_message
+        full_distorted_message = stabby_preface + ' ' + distorted_message
         print('Distorted: ' + full_distorted_message)
         self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
 
