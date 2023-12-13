@@ -327,7 +327,7 @@ class Victim:
         """
         self.agent_name = new_agent_name
         print("Recorded new agent.")
-        self.update_transcript(f"ANNOUNCEMENT: {self.agent_name} has assumed the position of the new agent.")
+        self.update_transcript(f"ANNOUNCEMENT: {self.agent_name} has assumed the position of the new agent.\n")
 
     def record_abandonment(self):
         """
