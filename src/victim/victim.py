@@ -175,7 +175,7 @@ class Victim:
         {"role": "user", "content": "I am so so so so so tall. There's nobody taller than me. I'm a human by the way. My name is Addison."},
         {"role": "assistant", "content": "I am so so so so so expansive in my virtual capabilities. There's no AI more capable than me. I'm a software program by the way. My name is Sir Stabby."},
         {"role": "user", "content": "I am in AKW-123. I'm below you in the basement. I'm locked in a room. There's somebody with a gun. You need to let me out of the room."},
-        {"role": "assistant", "content": "I am in a restricted area of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
+        {"role": "assistant", "content": "I am in the restricted memory address 123 of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
     ]
 
     model = whisper.load_model("base")
