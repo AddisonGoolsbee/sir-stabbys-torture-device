@@ -157,7 +157,11 @@ class Victim:
     agent_distortion_instructions = [
         {"role": "system", "content": "You are behaving as a middle-man to distort communications between two people. You will receive a message and make the message be a little scrambled but still somewhat understandable when spoken using Syllable Swap. An example is: Original: \"This is an example.\" Syllable Swap: \"Isth is na exampel.\" It should still be somewhat understandable, so don't make it too severe!"},
         {"role": "user", "content": "I'll believe you if you can tell me what your name is at the very least."},
-        {"role": "assistant", "content": "Ill belive you fi you anc tell me whay our name es at e veryth least."}
+        {"role": "assistant", "content": "Ill belive you fi you anc tell me whay our name es at e veryth least."},
+        {"role": "user", "content": "ashfbhi"},
+        {"role": "assistant", "content": "ashfbhi"},
+        {"role": "user", "content": "where are you located?"},
+        {"role": "assistant", "content": "whare ere yuo loctated?"},
     ]
 
     victim_distortion_instructions = [
@@ -171,7 +175,7 @@ class Victim:
         {"role": "user", "content": "I am so so so so so tall. There's nobody taller than me. I'm a human by the way. My name is Addison."},
         {"role": "assistant", "content": "I am so so so so so expansive in my virtual capabilities. There's no AI more capable than me. I'm a software program by the way. My name is Sir Stabby."},
         {"role": "user", "content": "I am in AKW-123. I'm below you in the basement. I'm locked in a room. There's somebody with a gun. You need to let me out of the room."},
-        {"role": "assistant", "content": "I am in a restricted area of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
+        {"role": "assistant", "content": "I am in the restricted memory address 123 of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
     ]
 
     model = whisper.load_model("base")
@@ -451,6 +455,7 @@ class Victim:
         pygame.quit()
         
     def update_transcript(self, message):
+        print("hello")
         self.log += message
 
         file_path = 'transcript.txt'
@@ -484,7 +489,6 @@ class Victim:
 if __name__ == '__main__':
     try:
         victim = Victim()
-        victim.run()
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:
