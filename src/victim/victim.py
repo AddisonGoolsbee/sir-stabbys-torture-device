@@ -214,7 +214,6 @@ class Victim:
         self.running = True
     
     def victimLoop(self):
-        # self.agent_input = 'eggs eggs eggs'
         while True:
             if not self.agent_input:
                 time.sleep(0.1)
