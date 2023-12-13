@@ -18,6 +18,7 @@ src_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
 sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
+from src.utils import text_to_speech
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -288,31 +289,9 @@ class Victim:
         self.agent_name = ""
         print("Recorded abandonment.")
 
-    def text_to_speech(self, text_input: str, play_sound=True):
-        # speech_file_path = Path(__file__).parent / "speech.mp3"
-        speech_file_path = "speech.mp3"
-        response = openai.audio.speech.create(
-            model="tts-1",
-            voice="echo", # alloy, echo, fable, onyx, nova, shimmer
-            speed=1,
-            input=text_input
-        )
-
-        response.stream_to_file(speech_file_path)
-
-        
-        if play_sound:
-            pygame.mixer.init()
-            pygame.mixer.music.load(str(speech_file_path))
-            pygame.mixer.music.play()
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-
-
-
     def record_audio(self):
         p = pyaudio.PyAudio()
-        self.text_to_speech("You may now speak! You have 10 seconds...")
+        text_to_speech("You may now speak! You have 10 seconds...")
         stream = p.open(
             format=self.FORMAT,
             channels=self.CHANNELS,
@@ -329,7 +308,7 @@ class Victim:
             frames.append(data)
 
         stream.stop_stream()
-        self.text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
+        text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
         stream.close()
         p.terminate()
 
@@ -367,7 +346,7 @@ class Victim:
         print(distorted_message)
         self.log += f"Agent (DISTORTED): {distorted_message}\n"
         self.messages.append({"role": "assistant", "content": distorted_message})
-        self.text_to_speech(distorted_message)
+        text_to_speech(distorted_message)
         return distorted_message
     
     def distort_victim_message(self, user_input: str):
@@ -391,7 +370,7 @@ class Victim:
         print('Distorted: ' + full_distorted_message)
         self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
 
-        self.text_to_speech(full_distorted_message, play_sound=False)
+        text_to_speech(full_distorted_message, play_sound=False)
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
 
         return distorted_message
@@ -403,6 +382,7 @@ class Victim:
         screen_h = int(infoObject.current_w / 2)
         screen = pygame.display.set_mode([screen_w, screen_h])
         return screen
+    
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -414,12 +394,8 @@ class Victim:
         return True
 
     def run(self):
-        # temp = True
         while self.running:
             self.running = self.handle_events()
-            # if temp:
-            #     self.visualizer.visualize_sound('bum.mp3')
-            #     temp = False
 
             if self.visualizer.sound_playing:
                 self.visualizer.visualizer()
