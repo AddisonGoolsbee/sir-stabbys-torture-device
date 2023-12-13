@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from enum import Enum
 import random
 from inputimeout import inputimeout, TimeoutOccurred
+from num2words import num2words
 
 atrocity_score = 0
 
@@ -289,7 +290,6 @@ atrocity_tuples = [
     ("scanners", "drawing by sight"),
     ("fax machines", "carrier pigeons"),
     ("copiers", "tracing paper"),
-    ("projectors", "shadow puppets"),
 ]
 
 current_dir = os.path.dirname(__file__)
@@ -388,7 +388,7 @@ class Agent:
         self.victim_message = data
         self.state = State.WAITING_RESPONSE
         self.timer = time.time()
-        text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond, otherwise I will commit an atrocity', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
 
     # thread where the bulk of the logic happens
     def console(self):
@@ -407,16 +407,17 @@ class Agent:
                         self.state = State.CHALLENGE
                     has_visualizer_started = False
             if self.state in [State.RESPONSE, State.CHALLENGE]:
-                print('starting')
                 input_string = self.get_input('Message Sir Stabby:  ', AGENT_RESPONSE_TIME)
-                print('ending')
 
                 if input_string is not None:
                     self.transmitter.send_message(input_string)
                     text_to_speech(input_string, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
                     self.state = State.WAITING
                 else:
-                    text_to_speech("You did not enter a message. I will now commence an atrocity...", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    atrocity_tuple = self.generate_atrocity()
+                    message = f"You did not enter a message. {self.commit_atrocity(atrocity_tuple)}"
+                    self.transmitter.send_message(f'Atrocity: {message}')
+                    text_to_speech(message, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
                     self.set_victim_message(None, True)
                 
             time.sleep(0.1)
@@ -446,12 +447,12 @@ class Agent:
                 print('done visualizing', self.state)
         return True
 
-    def commit_atrocity(self):
-        atrocity_tuple = random.choice(atrocity_tuples)
-        number_atrocities_committed = random.randint(1000, 10000)
-
-        print(f"I have just replaced {number_atrocities_committed} {atrocity_tuple[0]} with {atrocity_tuple[1]}.")
-        self.atrocity_score += number_atrocities_committed
+    def generate_atrocity(self):
+        return (random.choice(atrocity_tuples) + (random.randint(3000, 10000),))
+        
+    def commit_atrocity(self, atrocity_tuple):
+        self.atrocity_score += atrocity_tuple[2]
+        return f"I have just replaced {num2words(atrocity_tuple[2])} {atrocity_tuple[0]} with {atrocity_tuple[1]}."
 
     def run(self):
         while self.running:

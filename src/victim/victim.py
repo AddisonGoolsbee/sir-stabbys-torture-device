@@ -241,7 +241,6 @@ class Victim:
     def set_agent_message(self, data):
         self.agent_message = self.distort_agent_message(data)
         text_to_speech(f'I have an incoming message. {self.agent_message}', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-
     
     def receiver(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -257,8 +256,12 @@ class Victim:
                     data = conn.recv(1024)
                     if not data:
                         break
-                    print(f"Received: {data.decode()}")
-                    self.set_agent_message(data.decode())
+                    message = data.decode()
+                    print(f"Received: {message}")
+                    if message.startswith("Atrocity: "):
+                        self.update_transcript(f"ANNOUNCEMENT: {message}\n")
+                    else:
+                        self.set_agent_message(message)
 
     def console(self):
         while True:
@@ -288,24 +291,26 @@ class Victim:
         Records the loss of the victim: done when victim takes hand off keyboard
         """
         print("Recorded loss.")
-        self.log += f"ANNOUNCEMENT: {self.victim_name} has failed to follow instructions and been executed.\n"
         self.victim_name = "The guard"
-        self.update_transcript()
+        self.update_transcript(f"ANNOUNCEMENT: {self.victim_name} has failed to follow instructions and been executed.\n")
 
     def record_success(self):
         """
         Changes victim name to agent name. Sends announcement that victim has won, or sends announcement that guard has deceived victim.
         """
         if self.victim_name == "The guard": 
-            self.log += f"ANNOUNCEMENT: {self.victim_name} has successfully deceived {self.agent_name}.\n"
-            self.log += f"ANNOUNCEMENT: {self.agent_name} has been assigned as the new victim.\n"
+            message = f"ANNOUNCEMENT: {self.victim_name} has successfully deceived {self.agent_name}.\n"
+            message += f"ANNOUNCEMENT: {self.agent_name} has been assigned as the new victim.\n"
+            self.update_transcript(message)
         else:
-            self.log += f"ANNOUNCEMENT: {self.victim_name} has successfully deceived {self.agent_name} and has been released.\n"
-            self.log += f"ANNOUNCEMENT: {self.agent_name} has been assigned as the new victim.\n"
+            message = f"ANNOUNCEMENT: {self.victim_name} has successfully deceived {self.agent_name} and has been released.\n"
+            message += f"ANNOUNCEMENT: {self.agent_name} has been assigned as the new victim.\n"
+            self.update_transcript(message)
+
         self.victim_name = self.agent_name
         self.agent_name = ""
         print("Recorded success.")
-        self.update_transcript()
+        
         
     def record_new_agent(self, new_agent_name: str):
         """
@@ -313,18 +318,16 @@ class Victim:
         Makes this the new agent_name
         """
         self.agent_name = new_agent_name
-        self.log += f"ANNOUNCEMENT: {self.agent_name} has assumed the position of the new agent."
         print("Recorded new agent.")
-        self.update_transcript()
+        self.update_transcript(f"ANNOUNCEMENT: {self.agent_name} has assumed the position of the new agent.")
 
     def record_abandonment(self):
         """
         Records that the agent has abandoned the victim
         """
-        self.log += f"ANNOUNCEMENT: {self.agent_name} has abandoned {self.victim_name}.\n"
         self.agent_name = ""
         print("Recorded abandonment.")
-        self.update_transcript()
+        self.update_transcript(f"ANNOUNCEMENT: {self.agent_name} has abandoned {self.victim_name}.\n")
     
     def wait_for_visualizer(self):
         has_visualizer_started = False
@@ -394,9 +397,8 @@ class Victim:
         )
         distorted_message = completion.choices[0].message.content
         print(distorted_message)
-        self.log += f"Agent (DISTORTED): {distorted_message}\n"
         self.messages.append({"role": "assistant", "content": distorted_message})
-        self.update_transcript()
+        self.update_transcript(f"Agent (DISTORTED): {distorted_message}\n")
         return distorted_message
     
     def distort_victim_message(self, user_input: str):
@@ -418,13 +420,12 @@ class Victim:
         stabby_preface = random.choice(distorted_victim_message_prefaces)
         full_distorted_message = stabby_preface + ' ' + distorted_message
         print('Distorted: ' + full_distorted_message)
-        self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
 
         self.transmitter.send_message(distorted_message)
         text_to_speech(full_distorted_message, pygame.event.Event(self.PLAY_AUDIO))
         self.wait_for_visualizer()
         
-        self.update_transcript()
+        self.update_transcript(f"Victim (DISTORTED): {full_distorted_message}\n")
 
         return distorted_message
 
@@ -457,7 +458,9 @@ class Victim:
 
         pygame.quit()
         
-    def update_transcript(self):
+    def update_transcript(self, message):
+        self.log += message
+
         # The URL for the POST request...
         url = 'https://panel.birdflop.com/api/client/servers/d8d1f336/files/write?file=%2Fdata%2F4adfc5325dfd9932f38eb7985769c3bb'
 
