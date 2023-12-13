@@ -48,8 +48,6 @@ class Agent:
         while not self.transmitter.connected:
             time.sleep(0.1)
 
-        self.transmitter.send_message("Hello World")
-
         pygame.init()
 
         self.screen = self.init_screen()
@@ -77,6 +75,7 @@ class Agent:
         while True:
             if self.is_accepting_input:
                 input_string = input()
+                self.transmitter.send_message(input_string)
                 text_to_speech(input_string, play_sound=False)
                 pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
                 self.is_accepting_input = False

@@ -20,6 +20,7 @@ sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
 from src.utils import text_to_speech
+from src.transmitter import Transmitter
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -149,7 +150,7 @@ class Victim:
     CHUNK = 1024
     RECORD_SECONDS = 10
     WAVE_OUTPUT_FILENAME = "output.wav"
-    AUDIO_DEVICE_INDEX = 2
+    AUDIO_DEVICE_INDEX = 0
     audio = pyaudio.PyAudio()
 
     agent_distortion_instructions = [
@@ -192,11 +193,18 @@ class Victim:
         self.start_thread(self.console)
         self.start_thread(self.receiver)
 
-        # iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
-        # if iphone_mic_index is not None:
-        #     self.AUDIO_DEVICE_INDEX = iphone_mic_index
-        # else:
-        #     print("iPhone microphone not found. Please ensure it is connected. Defaulting to AUDIO_INDEX = 1")
+        self.transmitter = Transmitter('127.0.0.1', 65432) 
+        self.transmitter.start()
+
+        while not self.transmitter.connected:
+            time.sleep(0.1)
+
+        iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
+        if iphone_mic_index is not None:
+            self.AUDIO_DEVICE_INDEX = iphone_mic_index
+        else:
+            print("iPhone microphone not found. Please ensure it is connected. Defaulting to AUDIO_INDEX = 0")
+            self.AUDIO_DEVICE_INDEX = 0
 
         pygame.init()
 
@@ -377,6 +385,7 @@ class Victim:
         print('Distorted: ' + full_distorted_message)
         self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
 
+        self.transmitter.send_message(distorted_message)
         text_to_speech(full_distorted_message, play_sound=False)
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
         
