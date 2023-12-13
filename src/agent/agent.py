@@ -517,7 +517,7 @@ class Agent:
 
         pygame.quit()
         
-    def phrase_generator():
+    def phrase_generator(self):
         # Expanded lists
         subjects = [
             "The cat", "I", "A magician", "The computer", "She", "He", "The robot", "Our neighbor", 
@@ -556,17 +556,6 @@ class Agent:
 
         phrase = f"{subject} {verb} {complement}"
         return phrase
-    # def run(self):
-    #     while True:
-    #         self._handleStateChange()
-            
-    # def _handleStateChange(self):
-    #     with self.lock:
-    #         if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
-    #             print(self.victim_message, self.state)
-    #             self.prev_state = self.state
-    #             self.prev_victim_message = self.victim_message
-
 
 if __name__ == '__main__':
     try:
