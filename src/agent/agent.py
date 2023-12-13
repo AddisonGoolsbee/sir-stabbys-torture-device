@@ -40,7 +40,6 @@ atrocity_tuples = [
     ("salt shakers", "shakers where the salt clumps together"),
     ("umbrellas", "umbrellas that always invert in the wind"),
     ("hairbrushes", "brushes that static your hair"),
-    ("wine glasses", "glasses that always leave a ring"),
     ("yoga mats", "mats that slightly slip"),
     ("toasters", "toasters that unevenly toast bread"),
     ("running shoes", "shoes with laces that constantly untie"),
@@ -102,8 +101,8 @@ atrocity_tuples = [
     ("tissues", "tissues that are a bit too rough"),
     ("toasters", "toasters that slightly burn the edges"),
     ("toilet brushes", "brushes that don't quite reach"),
-    ("toothpaste", "toothpaste that tastes odd"),
-    ("towels", "towels that don't absorb well"),
+    ("full toothpaste tubes", "toothpaste tubes that are almost out but still have one more good squeeze in them"),
+    ("towels", "paper towels"),
     ("trash bags", "bags that tear easily"),
     ("umbrellas", "umbrellas that take forever to open"),
     ("vacuum cleaners", "vacuums that miss small bits"),
@@ -280,8 +279,8 @@ atrocity_tuples = [
     ("refrigerators", "cool caves"),
     ("air conditioners", "large fans"),
     ("heaters", "campfires"),
-    ("washing machines", "river with rocks"),
-    ("dryers", "clothesline in the breeze"),
+    ("washing machines", "a river with rocks"),
+    ("dryers", "a clothesline in the breeze"),
     ("vacuums", "hand brooms"),
     ("irons", "hot rocks"),
     ("hairdryers", "wind"),
@@ -475,7 +474,7 @@ class Agent:
             return None
     
     def generate_challenge_prompt(self):
-        self.challenge_prompt = "I am very stupid".lower().strip()
+        self.challenge_prompt = self.phrase_generator().lower().strip()
         return self.challenge_prompt
     
     def generate_challenge(self):

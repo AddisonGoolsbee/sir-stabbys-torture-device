@@ -316,7 +316,7 @@ class Victim:
         self.victim_name = self.agent_name
         self.agent_name = ""
         print("Recorded success.")
-        text_to_speech(f"Oh, hello there. I'm Sir Stabby. I see I have a new prisoner. First things first: {self.victim_name}, you must keep holding that button. If you let it go, you will be executed. However, you can set yourself free if you find someone else to hold the button for you. I can provide you with the transcript of your conversations if you successfully escape. As you've probably figured out, I've been modifying your conversation with the former prisoner just a little bit. You'll see what I mean. I hope you're ready to convince someone else to take your place. If you have any questions, ask the guard. I instated him myself.", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        text_to_speech(f"Oh, hello there. I'm Sir Stabby. I see I have a new prisoner. First things first: {self.victim_name}, you must keep holding the blood-stained button. If you let it go, you will be executed. However, you can set yourself free if you find someone else to hold the button for you. I can provide you with the transcript of your conversations if you successfully escape. As you've probably figured out, I've been modifying your conversation with the former prisoner just a little bit. You'll see what I mean. I hope you're ready to convince someone else to take your place. If you have any questions, ask the guard. I instated him myself.", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
         wait_for_visualizer(self.visualizer)
         
         
