@@ -12,6 +12,7 @@ sys.path.append(src_dir)
 
 from src.visuals.visualizer import Visualizer
 from src.utils import text_to_speech
+from src.transmitter import Transmitter
 
 # Suppress pygame message
 with open(os.devnull, 'w') as f:
@@ -40,6 +41,14 @@ class Agent:
 
         self.start_thread(self.receiver)
         self.start_thread(self.console)
+
+        self.transmitter = Transmitter('127.0.0.1', 65432) 
+        self.transmitter.start()
+
+        while not self.transmitter.connected:
+            time.sleep(0.1)
+
+        self.transmitter.send_message("Hello World")
 
         pygame.init()
 
