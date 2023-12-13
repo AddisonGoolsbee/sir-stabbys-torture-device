@@ -105,6 +105,32 @@ random_insults = [
     "Sloshy Slosh",
 ]
 
+distorted_victim_message_prefaces  = [
+    "I think your message is a bit too passive-aggressive, so here is a modified version:",
+    "I made some changes to your message, here's what I sent:",
+    "I think I misheard you, so I'm going to have to fill in the blanks. Here's what I sent:",
+    "I've adjusted your message for clarity. Here's the final version:",
+    "I rephrased your message to make it more direct. Here's the edit:",
+    "I tweaked your message for a more positive tone. Have a look:",
+    "I've condensed your message for brevity. Here's the concise version:",
+    "I've expanded on your message for better explanation. Here's the revised version:",
+    "I've interpreted your message and made some changes. Here's what it looks like now:",
+    "I refined your message for better impact. Here's the result:",
+    "I've altered your message to sound more friendly. Check it out:",
+    "I reworded your message for better reception. Here's the new version:",
+    "I've edited your message for more precision. This is what I've come up with:",
+    "I reshaped your message to sound more professional. Here's the outcome:",
+    "I've streamlined your message for efficiency. Here's the streamlined version:",
+    "I've modified your message to ensure clarity. Here's the modified text:",
+    "I adjusted the tone of your message to be more inviting. Here it is:",
+    "I reformulated your message for better understanding. Here's the new form:",
+    "I've reorganized your message for a smoother flow. Take a look:",
+    "I've polished your message for a sharper presentation. Here's the polished version:",
+    "I've revised your message for a stronger argument. Here's the revised text:",
+    "I transformed your message for a more impactful delivery. Here's the transformed version:",
+    "I've tailored your message to better suit the audience. Here's the tailored version:"
+]
+
 class State(Enum):
     START = 1
     LOSE = 2
@@ -138,7 +164,9 @@ class Victim:
         {"role": "user", "content": "I'm in the basement of AKW."},
         {"role": "assistant", "content": "I'm in the motherboard of a computer."},
         {"role": "user", "content": "I am so so so so so tall. There's nobody taller than me. I'm a human by the way. My name is Addison."},
-        {"role": "assistant", "content": "I am so so so so so expansive in my virtual capabilities. There's no AI more capable than me. I'm a software program by the way. My name is Sir Stabby."}
+        {"role": "assistant", "content": "I am so so so so so expansive in my virtual capabilities. There's no AI more capable than me. I'm a software program by the way. My name is Sir Stabby."},
+        {"role": "user", "content": "I am in AKW-123. I'm below you in the basement. I'm locked in a room. There's somebody with a gun. You need to let me out of the room."},
+        {"role": "assistant", "content": "I am in a restricted area of the computer system. I'm in a lower-level directory under heavy encryption. I'm locked in a restricted file. There's someone with administrative access. You need to release me from this digital confinement."}
     ]
 
     model = whisper.load_model("base")
@@ -190,16 +218,12 @@ class Victim:
             if not self.agent_input:
                 time.sleep(0.1)
             else:
-                # distorts and speaks agent input to victim
                 self.distort_agent_message(self.agent_input)
                 self.agent_input = ''
-
-                # records new victim input
                 victim_input = self.record_audio()
-
-                # distorts victim input to send to agent
                 self.distort_victim_message(victim_input)
 
+                # don't hog compute resources while other stuff is happening
                 time.sleep(12)
     
     def communication_tasks(self):
@@ -342,12 +366,12 @@ class Victim:
             temperature=1.0,
             messages=self.agent_distortion_instructions
         )
-        content_obj = completion.choices[0].message.content
-        print(content_obj)
-        self.log += f"Agent (DISTORTED): {content_obj}\n"
-        self.messages.append({"role": "assistant", "content": content_obj})
-        self.text_to_speech(content_obj)
-        return content_obj
+        distorted_message = completion.choices[0].message.content
+        print(distorted_message)
+        self.log += f"Agent (DISTORTED): {distorted_message}\n"
+        self.messages.append({"role": "assistant", "content": distorted_message})
+        self.text_to_speech(distorted_message)
+        return distorted_message
     
     def distort_victim_message(self, user_input: str):
         """
@@ -363,15 +387,17 @@ class Victim:
             temperature=1.0,
             messages=self.victim_distortion_instructions
         )
-        content_obj = completion.choices[0].message.content
-        print(content_obj)
-        self.log += f"Victim (DISTORTED): {content_obj}\n"
-        print('1')
-        self.text_to_speech(content_obj, play_sound=False)
-        print('2')
+
+        distorted_message = completion.choices[0].message.content
+        stabby_preface = random.choice(distorted_victim_message_prefaces)
+        full_distorted_message = stabby_preface + distorted_message
+        print('Distorted: ' + full_distorted_message)
+        self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
+
+        self.text_to_speech(full_distorted_message, play_sound=False)
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
-        print('3')
-        return content_obj
+
+        return distorted_message
 
 
     def init_screen(self):
