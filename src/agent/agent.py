@@ -103,7 +103,7 @@ class Agent:
         self.victim_message = data
         self.state = State.WAITING_RESPONSE
         self.timer = time.time()
-        text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond', play_sound=False, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        text_to_speech(f'{"I have an incoming message. " + data if not loop else "I will try again, please send a message this time."} You have {AGENT_RESPONSE_TIME} seconds to respond', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
 
     # thread where the bulk of the logic happens
     def console(self):
@@ -128,10 +128,10 @@ class Agent:
 
                 if input_string is not None:
                     self.transmitter.send_message(input_string)
-                    text_to_speech(input_string, play_sound=False, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    text_to_speech(input_string, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
                     self.state = State.WAITING
                 else:
-                    text_to_speech("You did not enter a message. I will now commence an atrocity...", play_sound=False, pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+                    text_to_speech("You did not enter a message. I will now commence an atrocity...", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
                     self.set_victim_message(None, True)
                 
             time.sleep(0.1)

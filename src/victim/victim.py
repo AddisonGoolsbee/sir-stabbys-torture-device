@@ -143,7 +143,6 @@ class State(Enum):
     WIN = 4
 class Victim:
     load_dotenv()
-    print(os.environ)
 
     PLAY_AUDIO = pygame.USEREVENT + 1
     FORMAT = pyaudio.paInt16
@@ -220,17 +219,29 @@ class Victim:
         thread.start()
     
     def victimLoop(self):
+        has_visualizer_started = False
         while True:
             if not self.agent_message:
                 time.sleep(0.1)
             else:
-                self.distort_agent_message(self.agent_message)
-                self.agent_message = ''
-                victim_input = self.record_audio()
-                self.distort_victim_message(victim_input)
+                if self.visualizer.sound_playing:
+                    has_visualizer_started = True
+                    time.sleep(0.1)
+                elif has_visualizer_started:
+                    has_visualizer_started = False
+                    self.agent_message = ''
+                    victim_input = self.record_audio()
+                    self.distort_victim_message(victim_input)
 
-                # don't hog compute resources while other stuff is happening
-                time.sleep(12)
+                    # don't hog compute resources while other stuff is happening
+                    time.sleep(12)
+                else:
+                    time.sleep(0.3)
+    
+    def set_agent_message(self, data):
+        self.agent_message = self.distort_agent_message(data)
+        text_to_speech(f'I have an incoming message. {self.agent_message}', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+
     
     def receiver(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -247,7 +258,7 @@ class Victim:
                     if not data:
                         break
                     print(f"Received: {data.decode()}")
-                    self.agent_message = data.decode()
+                    self.set_agent_message(data.decode())
 
     def console(self):
         while True:
@@ -259,8 +270,7 @@ class Victim:
             elif input_string == "a":
                 self.record_abandonment()
             else:
-                # self.record_new_agent(input_string)
-                self.agent_message = input_string
+                self.record_new_agent(input_string)
     
     def find_device_index(self, device_name):
         p = pyaudio.PyAudio()
@@ -315,10 +325,21 @@ class Victim:
         self.agent_name = ""
         print("Recorded abandonment.")
         self.update_transcript()
+    
+    def wait_for_visualizer(self):
+        has_visualizer_started = False
+        while True:
+            if self.visualizer.sound_playing:
+                has_visualizer_started = True
+                time.sleep(0.1)
+            elif has_visualizer_started:
+                break
 
     def record_audio(self):
         p = pyaudio.PyAudio()
-        text_to_speech("You may now speak! You have 10 seconds...")
+        text_to_speech("You may now speak! You have 10 seconds...", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        self.wait_for_visualizer()
+
         stream = p.open(
             format=self.FORMAT,
             channels=self.CHANNELS,
@@ -335,7 +356,9 @@ class Victim:
             frames.append(data)
 
         stream.stop_stream()
-        text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
+        text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!", pygame_event=pygame.event.Event(self.PLAY_AUDIO))
+        self.wait_for_visualizer()
+
         stream.close()
         p.terminate()
 
@@ -373,7 +396,6 @@ class Victim:
         print(distorted_message)
         self.log += f"Agent (DISTORTED): {distorted_message}\n"
         self.messages.append({"role": "assistant", "content": distorted_message})
-        text_to_speech(distorted_message)
         self.update_transcript()
         return distorted_message
     
@@ -399,8 +421,8 @@ class Victim:
         self.log += f"Victim (DISTORTED): {full_distorted_message}\n"
 
         self.transmitter.send_message(distorted_message)
-        text_to_speech(full_distorted_message, play_sound=False)
-        pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
+        text_to_speech(full_distorted_message, pygame.event.Event(self.PLAY_AUDIO))
+        self.wait_for_visualizer()
         
         self.update_transcript()
 
@@ -460,7 +482,6 @@ if __name__ == '__main__':
     try:
         victim = Victim()
         victim.run()
-        # distort_agent_input(text)
     except KeyboardInterrupt:
         print('\nAgent exited')
     except Exception as e:

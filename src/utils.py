@@ -1,8 +1,6 @@
 import os
 import sys
 import openai
-import socket
-import time
 
 with open(os.devnull, 'w') as f:
     old_stdout = sys.stdout
@@ -10,7 +8,7 @@ with open(os.devnull, 'w') as f:
     import pygame
     sys.stdout = old_stdout
 
-def text_to_speech(text_input: str, play_sound=True, pygame_event=None):
+def text_to_speech(text_input: str, pygame_event=None):
     # speech_file_path = Path(__file__).parent / "speech.mp3"
     speech_file_path = "speech.mp3"
     response = openai.audio.speech.create(
@@ -22,12 +20,12 @@ def text_to_speech(text_input: str, play_sound=True, pygame_event=None):
 
     response.stream_to_file(speech_file_path)
     
-    if play_sound:
+    if pygame_event:
+        pygame.event.post(pygame_event)
+    else:
         pygame.mixer.init()
         pygame.mixer.music.load(str(speech_file_path))
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
-    else:
-        if pygame_event:
-            pygame.event.post(pygame_event)
+            
