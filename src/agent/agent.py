@@ -464,8 +464,6 @@ class Agent:
                     wait_for_visualizer(self.visualizer)
                     self.state = State.WAITING
 
-
-
             time.sleep(0.1)
     
     def get_input(self, message, timeout):
@@ -473,7 +471,7 @@ class Agent:
         New implementation of get_input using timed input with backspace support.
         """
         print(message, end='', flush=True)
-        return timed_input_with_backspace(timeout)
+        return self.timed_input_with_backspace(timeout)
     
     def generate_challenge_prompt(self):
         self.challenge_prompt = self.phrase_generator().lower().strip()
