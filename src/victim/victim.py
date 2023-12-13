@@ -188,7 +188,7 @@ class Victim:
         self.agent_input = 'eggs eggs eggs'
         while True:
             if not self.agent_input:
-                pass
+                time.sleep(0.1)
             else:
                 # distorts and speaks agent input to victim
                 self.distort_agent_message(self.agent_input)
@@ -199,6 +199,8 @@ class Victim:
 
                 # distorts victim input to send to agent
                 self.distort_victim_message(victim_input)
+
+                time.sleep(12)
     
     def communication_tasks(self):
         while True:
@@ -267,7 +269,7 @@ class Victim:
         print("Recorded abandonment.")
 
     def text_to_speech(self, text_input: str, play_sound=True):
-        # speech_file_path = Path(__file__).parent / 
+        # speech_file_path = Path(__file__).parent / "speech.mp3"
         speech_file_path = "speech.mp3"
         response = openai.audio.speech.create(
             model="tts-1",
@@ -278,12 +280,14 @@ class Victim:
 
         response.stream_to_file(speech_file_path)
 
+        
         if play_sound:
             pygame.mixer.init()
             pygame.mixer.music.load(str(speech_file_path))
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
                 pygame.time.Clock().tick(10)
+
 
 
     def record_audio(self):
@@ -362,8 +366,11 @@ class Victim:
         content_obj = completion.choices[0].message.content
         print(content_obj)
         self.log += f"Victim (DISTORTED): {content_obj}\n"
+        print('1')
         self.text_to_speech(content_obj, play_sound=False)
+        print('2')
         pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
+        print('3')
         return content_obj
 
 
@@ -384,8 +391,12 @@ class Victim:
         return True
 
     def run(self):
+        # temp = True
         while self.running:
             self.running = self.handle_events()
+            # if temp:
+            #     self.visualizer.visualize_sound('bum.mp3')
+            #     temp = False
 
             if self.visualizer.sound_playing:
                 self.visualizer.visualizer()

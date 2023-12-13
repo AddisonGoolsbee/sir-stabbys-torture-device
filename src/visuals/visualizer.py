@@ -81,12 +81,17 @@ class Visualizer:
 
     
     def visualize_sound(self, filename):
+        print('a')
         self.analyzer.load(filename)
+        print('b')
         if not pygame.mixer.get_init():
             pygame.mixer.init()
+        print('aa')
         pygame.mixer.music.load(filename)
+        print('bb')
         pygame.mixer.music.play(0)
         self.sound_playing = True
+        print('c')
 
     def visualizer(self):
         self.avg_bass = 0
