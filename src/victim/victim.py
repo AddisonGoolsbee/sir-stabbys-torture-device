@@ -120,7 +120,7 @@ class Victim:
     CHUNK = 1024
     RECORD_SECONDS = 10
     WAVE_OUTPUT_FILENAME = "output.wav"
-    AUDIO_DEVICE_INDEX = 0
+    AUDIO_DEVICE_INDEX = 2
     audio = pyaudio.PyAudio()
 
     agent_distortion_instructions = [
@@ -171,11 +171,11 @@ class Victim:
         # communication_thread = threading.Thread(target=self.communication_tasks)
         # communication_thread.start()
 
-        iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
-        if iphone_mic_index is not None:
-            self.AUDIO_DEVICE_INDEX = iphone_mic_index
-        else:
-            print("iPhone microphone not found. Please ensure it is connected. Defaulting to AUDIO_INDEX = 1")
+        # iphone_mic_index = self.find_device_index("Koray’s iPhone Microphone")
+        # if iphone_mic_index is not None:
+        #     self.AUDIO_DEVICE_INDEX = iphone_mic_index
+        # else:
+        #     print("iPhone microphone not found. Please ensure it is connected. Defaulting to AUDIO_INDEX = 1")
 
         pygame.init()
 
@@ -196,7 +196,6 @@ class Victim:
 
                 # records new victim input
                 victim_input = self.record_audio()
-                print('made it')
 
                 # distorts victim input to send to agent
                 self.distort_victim_message(victim_input)
@@ -267,30 +266,28 @@ class Victim:
         self.agent_name = ""
         print("Recorded abandonment.")
 
-    def text_to_speech(self, text_input: str):
-        speech_file_path = Path(__file__).parent / "speech.mp3"
+    def text_to_speech(self, text_input: str, play_sound=True):
+        # speech_file_path = Path(__file__).parent / 
+        speech_file_path = "speech.mp3"
         response = openai.audio.speech.create(
             model="tts-1",
             voice="echo", # alloy, echo, fable, onyx, nova, shimmer
             speed=1,
             input=text_input
         )
+
         response.stream_to_file(speech_file_path)
-        # Initialize pygame mixer
-        pygame.mixer.init()
-        # Load the speech file
-        pygame.mixer.music.load(str(speech_file_path))
-        # Play the speech file
-        pygame.mixer.music.play()
-        # Wait for playback to finish
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
+
+        if play_sound:
+            pygame.mixer.init()
+            pygame.mixer.music.load(str(speech_file_path))
+            pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
 
 
     def record_audio(self):
-        # self.text_to_speech("You may now speak! You have 10 seconds...")
-        print('ab')
-
+        self.text_to_speech("You may now speak! You have 10 seconds...")
         stream = self.audio.open(
             format=self.FORMAT,
             channels=self.CHANNELS,
@@ -299,7 +296,6 @@ class Victim:
             frames_per_buffer=self.CHUNK,
             input_device_index=self.AUDIO_DEVICE_INDEX
         )
-        print('time')
 
         frames = []
 
@@ -307,13 +303,10 @@ class Victim:
             data = stream.read(self.CHUNK)
             frames.append(data)
 
-        print('a')
         stream.stop_stream()
         self.text_to_speech(f"SILENCE YOU {random.choice(random_insults)}...!!!")
         stream.close()
         self.audio.terminate()
-
-        pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
 
         waveFile = wave.open(self.WAVE_OUTPUT_FILENAME, 'wb')
         waveFile.setnchannels(self.CHANNELS)
@@ -358,10 +351,6 @@ class Victim:
         Distorts it to sound AI-written
         Returns the distorted text
         """
-        # add original agent input to log, then
-        # distort the output using singular distortion model
-        # add the distorted output to log
-        # speak distorted output
         self.log += f"Victim: {user_input}\n"
         self.victim_distortion_instructions.append({"role": "user", "content": user_input})
         # use gpt-4-turbo
@@ -373,7 +362,8 @@ class Victim:
         content_obj = completion.choices[0].message.content
         print(content_obj)
         self.log += f"Victim (DISTORTED): {content_obj}\n"
-        # text_to_speech(content_obj)
+        self.text_to_speech(content_obj, play_sound=False)
+        pygame.event.post(pygame.event.Event(self.PLAY_AUDIO))
         return content_obj
 
 
@@ -390,7 +380,7 @@ class Victim:
                 return False
             if event.type == self.PLAY_AUDIO:
                 print('playing listened audio')
-                self.visualizer.visualize_sound('output.wav')
+                self.visualizer.visualize_sound('speech.mp3')
         return True
 
     def run(self):
