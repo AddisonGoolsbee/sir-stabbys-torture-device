@@ -8,6 +8,13 @@ As it turns out (and unbeknownst to the typing player), there is a civilian lock
 
 Once the agent saves the civilian, there’s one more twist: the civilian is tethered to the victim pad. When Peter Scottsen designed his death machine, he created a pad that the civilian must touch at all times. If the civilian lets go, Sir Stabby will launch the nuclear bombs, killing everyone. The civilian must trick the agent into holding the pad in order to be freed from this burden
 
+
+<object data="pamphlet_full.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="pamphlet_full.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="pamphlet_full.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
+
 ## Requirements
 
 - portaudio
