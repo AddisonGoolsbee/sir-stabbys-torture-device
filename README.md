@@ -26,7 +26,7 @@ Once the cardboard device is plugged in, you can run the Python script. Set up t
 You will need to make an `.env` file following the template of `.env.example`. It requires three environment variables:
 
 - **OPENAI_API_KEY**: Key to use OpenAI's GPT4. Using GPT4 will cost you money, so be careful!
-- **BIRDFLOP_API_KEY**: Key to use Birdflop, which is the website that contains the transcript at the end of the exhibit
+- **BIRDFLOP_API_KEY**: Key to use Binflop by Birdflop, which is the website that contains the transcript at the end of the exhibit. Birdflop is not open-access, so an alternative site that allows POST requests to a dynamically updating website could be substituted in the code. Or, contact Koray for an API key.
 - **AGENT_ESP_PORT**: the port that Sir Stabby plugs into on the agent computer
 
 ## File Structure
