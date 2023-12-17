@@ -135,11 +135,6 @@ distorted_victim_message_prefaces  = [
     "I've tailored your message to better suit the audience, here's the tailored version."
 ]
 
-class State(Enum):
-    START = 1
-    LOSE = 2
-    ABANDON = 3
-    WIN = 4
 class Victim:
     load_dotenv()
 
@@ -182,10 +177,8 @@ class Victim:
 
     def __init__(self):
         self.lock = threading.Lock()
-        self.state = State.START
         self.agent_message = ''
         self.log = ''
-        self.prev_state = self.state
         self.messages = []
         self.start_time = time.time()
         self.victim_name = "The guard"
@@ -201,8 +194,6 @@ class Victim:
 
         while not self.transmitter.connected:
             time.sleep(0.1)
-
-        
 
         iphone_mic_index = self.find_device_index("Addison’s iPhone Microphone")
         if iphone_mic_index is not None:

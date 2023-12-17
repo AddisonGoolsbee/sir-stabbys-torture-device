@@ -312,10 +312,9 @@ with open(os.devnull, 'w') as f:
   
 class State(Enum):
     START = 1
-    DEATH = 2
-    WAITING = 3
-    RESPONSE = 4
-    CHALLENGE = 5
+    WAITING = 2
+    RESPONSE = 3
+    CHALLENGE = 4
 
 class Agent:
     PLAY_AUDIO = pygame.USEREVENT + 1
