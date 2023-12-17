@@ -59,6 +59,10 @@ The agent setup consists of Sir Stabby (Remastered) fir snugly around a 13" Mac,
 
 The bulk of the code lies within `agent.py` and `victim.py`, as these are the main controllers for their respective computers
 
+### Visualizer
+
+The audio visualizer uses pygame and FFT magic to make a speaking animation that syncs with the audio from a file. When the visualizer is run, it plays the audio and the animation at the same time
+
 ### Agent
 
 The agent computer is composed of the Sir Stabby mechanism, which continually attempts to stab the agent, and the AI, which either talks to the agent and waits for answers, or challenges the agent and threatens to cause harm to humanity
@@ -71,7 +75,7 @@ The code for the mechanism, `agent.ino`, is disconnected from the code for the c
 
 - **Main**: the Visualizer for the AI. Can be sent a "visualize_sound" event from other threads, which tells pygame to start animating the visualizer from the previous position
 - **Receiver**: the network receiver, which listens to incoming TCP packets from the victim and notifies the console thread accordingly
-- **Transmitter**: the network transmitter, which, when triggered by the console thread, sends a TCP packet to the victim receiver. In order for the script to start its main loop, the transmitter *must* connect to a receiving end. It will keep trying until it does connect, and `dummyReceiver.py` is very useful for testing only `agent.py`
+- **Transmitter**: the network transmitter, which, when triggered by the console thread, sends a TCP packet to the victim receiver. In order for the script to start its main loop, the transmitter _must_ connect to a receiving end. It will keep trying until it does connect, and `dummyReceiver.py` is very useful for testing only `agent.py`
 - **Console**: this is essentially the main thread, except that Pygame can only run on the main thread, so the console thread is separate. The console thread handles not only user input through the console, but also most of the game logic. Console's main loop is the core state machine of the program. Whenever the receiver receives something, the console is updated. Whenever the console wants to send something, the transmitter is updated. Whenever the console wants to visualize audio, the transmitter is updated
 
 #### Agent State Machine
@@ -93,7 +97,7 @@ All of the code is in `victim.py`, `victim.ino` is an obsolete file
 - **Receiver**: the receiver receives messages from the agent, just like the agent's receiver does, except the victim receiver also distorts the agent's message using a custom GPT4 'syllable swap' directive
 - **Transmitter**: same as agent
 - **Console**: while the victim side is running, because the visuals are on a projector, the security guard has access to the actual computer running the program. There are a number of commands the security guard can input that change the transcript
-- **Victim Loop**: this is the *main* thread other than the fact that pygame has to be on the main thread, similar to the console thread in `agent.py`. The victim loop thread handles game logic, and is the thread that interacts with all the other threads. Once the victim receives a message from the agent, it is distorted and then played back to the victim. The victim then has a fixed amount of time to speak to Sir Stabby, before Sir Stabby cuts the victim off with a randomized insult. Then, the message is distorted using GPT4 to seem like it comes from a computer system, and it is sent off to the agent to confusingly interperet. The distorted message is played back to the victim, prefaced by a randomized excuse such as "I found your message to be a bit too passive-aggressive, so I modified it"
+- **Victim Loop**: this is the _main_ thread other than the fact that pygame has to be on the main thread, similar to the console thread in `agent.py`. The victim loop thread handles game logic, and is the thread that interacts with all the other threads. Once the victim receives a message from the agent, it is distorted and then played back to the victim. The victim then has a fixed amount of time to speak to Sir Stabby, before Sir Stabby cuts the victim off with a randomized insult. Then, the message is distorted using GPT4 to seem like it comes from a computer system, and it is sent off to the agent to confusingly interperet. The distorted message is played back to the victim, prefaced by a randomized excuse such as "I found your message to be a bit too passive-aggressive, so I modified it"
 
 #### Console Inputs
 
@@ -101,9 +105,3 @@ All of the code is in `victim.py`, `victim.ino` is an obsolete file
 - **s/success**: if the victim successfully gets the agent to enter the prison cell and press the button, they are handed the full, non-redacted pamphlet with QR code access to the online transcript, and are congragulated and told to laugh at the new victim. Sir Stabby on the victim side will then give its 30-second spiel about what the victim is expected to do, how the victim can escape. etc
 - **a/abandonment**: if the agent abandons Sir Stabby, the transcript is updated, and the victim simply waits for the next agent to attempt Sir Stabby
 - **any**: if any other text is entered into the console, it is interpreted as a new agent showing up. The text is used as the agent's name, and that agent is tracked in the transcript afterwards. The agent's name becomes the victim's name when the victim succeeds
-
-
-
-### Visualizer
-
-The audio visualizer uses pygame and FFT magic to make a speaking animation that syncs with the audio from a file. When the visualizer is run, it plays the audio and the animation at the same time
