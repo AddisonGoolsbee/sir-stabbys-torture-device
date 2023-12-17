@@ -4,7 +4,6 @@ import threading
 import time
 import openai
 from dotenv import load_dotenv
-# from pathlib import Path
 import openai
 import os
 import sys

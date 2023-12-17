@@ -44,3 +44,6 @@ You will need to make an `.env` file following the template of `.env.example`. I
 The bulk of the code lies within `agent.py` and `victim.py`, as these are the main controllers for their respective computers
 
 ### Agent
+
+
+### Victim

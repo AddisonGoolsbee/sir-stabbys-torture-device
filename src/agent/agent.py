@@ -7,7 +7,6 @@ import time
 from dotenv import load_dotenv
 from enum import Enum
 import random
-from inputimeout import inputimeout, TimeoutOccurred
 from num2words import num2words
 import termios
 import tty
@@ -378,8 +377,6 @@ class Agent:
     
     def set_victim_message(self, data):
         self.victim_message = data
-        # text_to_speech(f'{"Ok, that is enough challenges. I have come up with a response to your message. " + data if not loop else "Please send me a message, I crave human interaction. "} You have {AGENT_RESPONSE_TIME} seconds to respond, otherwise I will commit an atrocity', pygame_event=pygame.event.Event(self.PLAY_AUDIO))
-        # wait_for_visualizer(self.visualizer)
 
     # thread where the bulk of the logic happens
     def console(self):
@@ -605,19 +602,6 @@ class Agent:
             self.restore_term(fd, old_settings)
         
         return input_str
-
-
-    # def run(self):
-    #     while True:
-    #         self._handleStateChange()
-            
-    # def _handleStateChange(self):
-    #     with self.lock:
-    #         if self.state != self.prev_state or self.prev_victim_message != self.victim_message:
-    #             print(self.victim_message, self.state)
-    #             self.prev_state = self.state
-    #             self.prev_victim_message = self.victim_message
-
 
 if __name__ == '__main__':
     try:
