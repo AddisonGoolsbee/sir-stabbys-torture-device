@@ -14,10 +14,7 @@ Once the agent saves the civilian, there’s one more twist: the civilian is tet
 - ffmpeg
 
 ## Setup
-
-To set up the agent enclosure, fit Sir Stabby Remastered snugly around the computer with the usbc attached to the top-left port. In addition, make sure that there is power going to the stepper motor (attached in the back). You must start the device first before the Python script starts running, but once you start them, the game will reset/wait on its own
-
-Once the cardboard device is plugged in, you can run the Python script. Set up the virtual environment with the following steps:
+When Sir Stabby is plugged in, you can run the Python script. Set up the virtual environment with the following steps:
 
 - `python -m venv venv`
 - `source venv/bin/activate`
@@ -29,9 +26,16 @@ You will need to make an `.env` file following the template of `.env.example`. I
 - **BIRDFLOP_API_KEY**: Key to use Binflop by Birdflop, which is the website that contains the transcript at the end of the exhibit. Birdflop is not open-access, so an alternative site that allows POST requests to a dynamically updating website could be substituted in the code. Or, contact Koray for an API key.
 - **AGENT_ESP_PORT**: the port that Sir Stabby plugs into on the agent computer
 
-### Starting the Exhibit
+### Exhibit Setup
+For the victim setup, we had a button on a pedestal functioned as the button that the victim would have to hold to avoid execution (as an aside, this setup was disassembled before taking any photos or videos of it!). The victim room consists of a dark room with the Sir Stabby voice FFT projected onto a large surface and a guard, who is instructed to shoot the victim if the victim releases their hand.
 
+The guard additionally controls a terminal with access to some critical functions that ensure the game runs smoothly:
+`loss (l)`: if the victim releases the button, record that the victim lost. The guard can take their place as the victim.
+`success (s)`: if the victim successfully escapes, record this information. The agent becomes the new victim.
+`abandonment (a)`: if the agent decides to abandon the victim, record this information and clear the agent's name from saved variables.
+`{agent_name}`: if there is a new agent, record the name of the new agent. The informtion will be radio'd down over walkie-talkie.
 
+The agent setup consists of Sir Stabby (Remastered) fir snugly around a 13" Mac, with the USB-C attached to the top-left port. The lower portion of the screen is used to bring up a terminal to communicate with Sir Stabby (Remastered), while the upper portion is used to display the Sir Stabby (Remastered) FFT.
 
 ## File Structure
 
