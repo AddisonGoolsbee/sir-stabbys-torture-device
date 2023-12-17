@@ -31,27 +31,16 @@ You will need to make an `.env` file following the template of `.env.example`. I
 
 ## File Structure
 
-- `agent` holds the arduino file `agent.ino`, which is the code for Sir Stabby's ESP32
-- `.env.example` shows a template for the `.env` file you will need to make to use GPT4
-- ...
+- All code lies within the `src/` folder
+- `agent/` contains the agent-side code, which includes the arduino code for Sir Stabby `agent.ino` as well as the computer code `agent.py`
+- `victim/` contains the victim-side code. `victim.py` is the computer code that goes on the projector, and `victim.ino` is an unused piece of code that was previously for the button
+- `visuals/` contains code for the audio visualizer that depicts the AI Sir Stabby
+- `constants.py` contains various constants used between `agent.py` and `victim.py`, including IP addresses and port numbers of both computers, so they can be easily modified during setup
+- `utils.py` contains a couple of util functions used in both `agent.py` and `victim.py`
+- `transmitter.py` is a class that is implemented in both `agent.py` and `victim.py` that asynchronously transmits data to a specified port and IP address
+- `dummyReceiver.py` is a helpful testing file that allows for a fake receiving computer to be set up. In order for either `agent.py` or `victim.py` to work, their transmitters need to establish a socket connection with a receiving end. Using the dummyReceiver allows for one to test `agent.py` and `victim.py` in isolation.
+- While a `receiver.py` class file would have been cleaner, because we needed to update different instance variables in `agent.py` and `victim.py`, we decided to implement the receiver class separately in both of the files
 
-## TODO
+The bulk of the code lies within `agent.py` and `victim.py`, as these are the main controllers for their respective computers
 
-- construct base victim pad
-- victim.ino sends victim pad information over wifi
-- construct base sir stabby remastered
-- agent.ino updated to refelct sir stabby remastered
-- agent.py refactored into manageable codebase
-- agent.py and victim.py communicate through wifi
-- victim's message is villified in agent.py using GPT
-- agent's message is encoded in agent.py using GPT
-- cleaner UI for agent
-- cleaner UI for victim
-- victim computer hooked up to projector, resized for projector
-- record entire transcript in agent.py
-- state machine involving game reset
-- game loss behavior on victim side
-- game loss behavior on agent side
-- space bar from victim observer triggers game complete; game complete behavior
-- generate qr code leading to transcript
-- design pamphlets
+### Agent
