@@ -13,12 +13,6 @@ Once the agent saves the civilian, there’s one more twist: the civilian is tet
 - portaudio
 - ffmpeg
 
-## File Structure
-
-- `agent` holds the arduino file `agent.ino`, which is the code for Sir Stabby's ESP32
-- `.env.example` shows a template for the `.env` file you will need to make to use GPT4
-- ...
-
 ## Setup
 
 To set up the agent enclosure, fit Sir Stabby Remastered snugly around the computer with the usbc attached to the top-left port. In addition, make sure that there is power going to the stepper motor (attached in the back). You must start the device first before the Python script starts running, but once you start them, the game will reset/wait on its own
@@ -29,9 +23,17 @@ Once the cardboard device is plugged in, you can run the Python script. Set up t
 - `source venv/bin/activate`
 - `pip install -r requirements.txt`
 
-In addition, you will need an OpenAI key, which should be put in a `.env` file following the example of `.env.example`. Using GPT4 will cost you money, so be careful! Our GPT has been specially configured to emboy Sir Stabby, if you are setting this up on your own, you will have to set your own rules for the AI
+You will need to make an `.env` file following the template of `.env.example`. It requires three environment variables:
 
-...
+- **OPENAI_API_KEY**: Key to use OpenAI's GPT4. Using GPT4 will cost you money, so be careful!
+- **BIRDFLOP_API_KEY**: Key to use Birdflop, which is the website that contains the transcript at the end of the exhibit
+- **AGENT_ESP_PORT**: the port that Sir Stabby plugs into on the agent computer
+
+## File Structure
+
+- `agent` holds the arduino file `agent.ino`, which is the code for Sir Stabby's ESP32
+- `.env.example` shows a template for the `.env` file you will need to make to use GPT4
+- ...
 
 ## TODO
 
