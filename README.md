@@ -29,6 +29,10 @@ You will need to make an `.env` file following the template of `.env.example`. I
 - **BIRDFLOP_API_KEY**: Key to use Binflop by Birdflop, which is the website that contains the transcript at the end of the exhibit. Birdflop is not open-access, so an alternative site that allows POST requests to a dynamically updating website could be substituted in the code. Or, contact Koray for an API key.
 - **AGENT_ESP_PORT**: the port that Sir Stabby plugs into on the agent computer
 
+### Starting the Exhibit
+
+
+
 ## File Structure
 
 - All code lies within the `src/` folder
